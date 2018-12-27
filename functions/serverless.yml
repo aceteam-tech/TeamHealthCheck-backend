@@ -51,22 +51,54 @@ functions:
       FUNCTION: create-team
       REGION: ${self:provider.region}
       STAGE: ${self:provider.stage}
-#  post-health-status:
-#    handler: functions/post-health-status.lambda
-#    description: Sends new health status for a team health check
-#    role: arn:aws:iam::771291245740:role/HealthCheck_lambda
-#    events:
-#      - http:
-#          path: health-status
-#          method: post
-#          authorizer:
-#            type: COGNITO_USER_POOLS
-#            authorizerId:
-#              Ref: ApiGatewayAuthorizer
-#    environment:
-#      FUNCTION: post-health-status
-#      REGION: ${self:provider.region}
-#      STAGE: ${self:provider.stage}
+  create-health-status:
+    handler: functions/create-health-status.lambda
+    description: Sends new health status for a health check
+    role: arn:aws:iam::771291245740:role/HealthCheck_lambda
+    events:
+      - http:
+          path: health-status
+          method: post
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+    environment:
+      FUNCTION: create-health-status
+      REGION: ${self:provider.region}
+      STAGE: ${self:provider.stage}
+  create-health-check:
+    handler: functions/create-health-check.lambda
+    description: Create new health check for a team
+    role: arn:aws:iam::771291245740:role/HealthCheck_lambda
+    events:
+      - http:
+          path: health-check
+          method: post
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+    environment:
+      FUNCTION: create-health-check
+      REGION: ${self:provider.region}
+      STAGE: ${self:provider.stage}
+  end-health-check:
+    handler: functions/end-health-check.lambda
+    description: End the health check and compute results
+    role: arn:aws:iam::771291245740:role/HealthCheck_lambda
+    events:
+      - http:
+          path: health-check/end
+          method: post
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+    environment:
+      FUNCTION: end-health-check
+      REGION: ${self:provider.region}
+      STAGE: ${self:provider.stage}
   create-profile:
     handler: functions/create-profile.lambda
     description: Create user profile with id the same as Cognito UID
@@ -104,11 +136,15 @@ resources:
       Properties:
         TableName: HC-${self:provider.stage}-HealthChecks
         AttributeDefinitions:
-          - AttributeName: id
+          - AttributeName: team_id
             AttributeType: S
+          - AttributeName: date
+            AttributeType: N
         KeySchema:
-          - AttributeName: id
+          - AttributeName: team_id
             KeyType: HASH
+          - AttributeName: date
+            KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
     ApiGatewayAuthorizer:
       Type: AWS::ApiGateway::Authorizer

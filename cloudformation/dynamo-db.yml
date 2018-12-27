@@ -1,0 +1,16 @@
+Resources:
+  HealthStatusesTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: HC-dev-HealthStatuses
+      AttributeDefinitions:
+        - AttributeName: health_check_id
+          AttributeType: S
+        - AttributeName: user_id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: health_check_id
+          KeyType: HASH
+        - AttributeName: user_id
+          KeyType: RANGE
+      BillingMode: PAY_PER_REQUEST

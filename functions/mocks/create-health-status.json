@@ -1,0 +1,58 @@
+{
+  "body": {
+    "healthCheckId": "8e6f3f5a-598b-4f0f-a221-9c8043644618",
+    "categories": [
+      {
+        "id": "1",
+        "value": 2
+      },
+      {
+        "id": "2",
+        "value": 2
+      },
+      {
+        "id": "3",
+        "value": 2
+      },
+      {
+        "id": "4",
+        "value": 2
+      },
+      {
+        "id": "5",
+        "value": 2
+      },
+      {
+        "id": "6",
+        "value": 2
+      },
+      {
+        "id": "7",
+        "value": 2
+      },
+      {
+        "id": "8",
+        "value": 2
+      },
+      {
+        "id": "9",
+        "value": 2
+      },
+      {
+        "id": "10",
+        "value": 2
+      },
+      {
+        "id": "11",
+        "value": 2
+      }
+    ]
+  },
+  "requestContext": {
+    "authorizer": {
+      "claims": {
+        "sub": "7732ae35-7149-4d5b-9633-184ec103b0ac"
+      }
+    }
+  }
+}
