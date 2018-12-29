@@ -26,6 +26,11 @@ Parameters:
     Default: cloudformation/configuration-dev.yml
     Description: The configuration file name for the test WordPress stack
     Type: String
+  OAuthToken:
+    Type: 'AWS::SSM::Parameter::Value<String>'
+    Default: github-hc-functions-pipeline-oauth
+    Description: The name of OAuth token for webhook integration defined in parameters store
+
 #  ProdStackName:
 #    Default: Prod-MyWordPressSite
 #    Description: A name for the production WordPress stack
@@ -96,7 +101,7 @@ Resources:
                 Branch: master
                 Owner: aceteam-tech
 #               Move out
-                OAuthToken: 53e435f1c479afc767360e3d3e148c7ce50cf988
+                OAuthToken: !Ref OAuthToken
                 PollForSourceChanges: false
                 Repo: TeamHealthCheck-backend
               OutputArtifacts:
