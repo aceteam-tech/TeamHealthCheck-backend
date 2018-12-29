@@ -4,16 +4,14 @@ Description: >
   Health Check Functions Continuous Delivery AWS CloudFormation Template
 
 Parameters:
-#  PipelineName:
-#    Description: A name for pipeline
-#    Type: String
-#  S3Bucket:
-#    Description: The name of the S3 bucket that contains the source artifact, which must be in the same region as this stack
-#    Type: String
-#  SourceS3Key:
-#    Default: wordpress-single-instance.zip
-#    Description: The file name of the source artifact, such as myfolder/myartifact.zip
-#    Type: String
+  PipelineName:
+    Default: HC-functions
+    Description: A name for pipeline
+    Type: String
+  WebhookName:
+    Default: HC-backend-webhook
+    Description: Github webhook for new changes
+    Type: String
   TemplateFileName:
     Default: cloudformation/dynamo-db.yml
     Description: The path to the deployment cloudformation template
@@ -23,67 +21,40 @@ Parameters:
     Description: A name for the test WordPress stack
     Type: String
   TestStackConfig:
-    Default: cloudformation/configuration-dev.yml
-    Description: The configuration file name for the test WordPress stack
+    Default: cloudformation/configuration-dev.json
+    Description: The configuration file name for the test environment
     Type: String
   OAuthToken:
     Type: 'AWS::SSM::Parameter::Value<String>'
     Default: github-hc-functions-pipeline-oauth
     Description: The name of OAuth token for webhook integration defined in parameters store
+  GithubSecret:
+    Type: 'AWS::SSM::Parameter::Value<String>'
+    Default: github-hc-backend-pipeline-secret
+    Description: The secret used to ensure, that webhook comes from github
 
-#  ProdStackName:
-#    Default: Prod-MyWordPressSite
-#    Description: A name for the production WordPress stack
-#    Type: String
-#  ProdStackConfig:
-#    Default: prod-stack-configuration.json
-#    Description: The configuration file name for the production WordPress stack
-#    Type: String
-#  ChangeSetName:
-#    Default: UpdatePreview-MyWordPressSite
-#    Description: A name for the production WordPress stack change set
-#    Type: String
-#  Email:
-#    Description: The email address where CodePipeline sends pipeline notifications
-#    Type: String
-
-#Metadata:
-#  AWS::CloudFormation::Interface:
-#    ParameterGroups:
-#      - Label:
-#          default: "CodePipeline Settings"
-#        Parameters:
-#          - PipelineName
-#          - S3Bucket
-#          - SourceS3Key
-#          - Email
-#      - Label:
-#          default: "Test Stack Settings"
-#        Parameters:
-#          - TestStackName
-#          - TemplateFileName
-#          - TestStackConfig
-#      - Label:
-#          default: "Production Stack Settings"
-#        Parameters:
-#          - ChangeSetName
-#          - ProdStackName
-#          - ProdStackConfig
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: "CodePipeline Settings"
+        Parameters:
+          - PipelineName
+          - OAuthToken
+          - GithubSecret
+          - WebhookName
+      - Label:
+          default: "Test Stack Settings"
+        Parameters:
+          - TestStackName
+          - TemplateFileName
+          - TestStackConfig
 
 Resources:
-#  CodePipelineSNSTopic:
-#    Type: AWS::SNS::Topic
-#    Properties:
-#      Subscription:
-#        - Endpoint: !Ref Email
-#          Protocol: email
-
   Pipeline:
     Type: AWS::CodePipeline::Pipeline
     Properties:
-
-      Name: HC-functions
-#      Name: !Ref 'PipelineName'
+      Name: !Ref 'PipelineName'
       RoleArn: !GetAtt [PipelineRole, Arn]
       ArtifactStore:
         Location: squad-health-check-builds
@@ -100,7 +71,6 @@ Resources:
               Configuration:
                 Branch: master
                 Owner: aceteam-tech
-#               Move out
                 OAuthToken: !Ref OAuthToken
                 PollForSourceChanges: false
                 Repo: TeamHealthCheck-backend
@@ -119,12 +89,26 @@ Resources:
                 - Name: TemplateSource
               Configuration:
                 ActionMode: CREATE_UPDATE
-#               Replace with role created in the CloudFormation stack
                 RoleArn: !GetAtt [CFNRole, Arn]
                 StackName: !Ref TestStackName
                 TemplateConfiguration: !Sub "TemplateSource::${TestStackConfig}"
                 TemplatePath: !Sub "TemplateSource::${TemplateFileName}"
               RunOrder: '1'
+
+  Webhook:
+    Type: "AWS::CodePipeline::Webhook"
+    Properties:
+      Name: WebhookName
+      Authentication: GITHUB_HMAC
+      AuthenticationConfiguration:
+        SecretToken: !Ref GithubSecret
+      Filters:
+        - JsonPath: "$.ref"
+          MatchEquals: refs/heads/{Branch}
+      TargetPipeline: !Ref 'PipelineName'
+      TargetAction: Source
+      TargetPipelineVersion: !GetAtt Pipeline.Version
+      RegisterWithThirdParty: 'true'
 
   CFNRole:
     Type: AWS::IAM::Role

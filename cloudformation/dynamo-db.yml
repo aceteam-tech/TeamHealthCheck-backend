@@ -1,8 +1,13 @@
+Parameters:
+  Env:
+    Description: Name of the environment
+    Type: String
+
 Resources:
   HealthStatusesTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: !Sub "HC-${ENV}-HealthStatuses"
+      TableName: !Sub 'HC-${Env}-HealthStatuses'
       AttributeDefinitions:
         - AttributeName: health_check_id
           AttributeType: S
