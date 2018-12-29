@@ -2,7 +2,7 @@ Resources:
   HealthStatusesTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: HC-dev-HealthStatuses
+      TableName: !Sub "HC-${ENV}-HealthStatuses"
       AttributeDefinitions:
         - AttributeName: health_check_id
           AttributeType: S

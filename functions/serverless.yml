@@ -10,7 +10,7 @@ provider:
   region: ${opt:region, 'eu-west-2'}
   memorySize: 128
   tags:
-    PROJECT: "Simple Poker"
+    PROJECT: "HealthCheck"
     REGION: ${self:provider.region}
   stage: ${opt:stage, 'dev'}
 package:
