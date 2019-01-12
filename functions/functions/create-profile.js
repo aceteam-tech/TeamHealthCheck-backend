@@ -14,5 +14,5 @@ module.exports.lambda = async (event, context) => {
     }
     await db.put(params).promise()
 
-    return params.Item;
+    return event;
 };
