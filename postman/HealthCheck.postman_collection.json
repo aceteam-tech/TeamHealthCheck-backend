@@ -1,0 +1,251 @@
+{
+	"info": {
+		"_postman_id": "6347fdd4-4395-41c0-a5f4-0ea37f706bb9",
+		"name": "Health Check",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Teams: Get",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "https://{{api_id}}.execute-api.{{aws_server}}/{{env}}/my-teams",
+					"protocol": "https",
+					"host": [
+						"{{api_id}}",
+						"execute-api",
+						"{{aws_server}}"
+					],
+					"path": [
+						"{{env}}",
+						"my-teams"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Teams: Add",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"teamName\": \"blabla\"\n}"
+				},
+				"url": {
+					"raw": "https://{{api_id}}.execute-api.{{aws_server}}/{{env}}/my-teams",
+					"protocol": "https",
+					"host": [
+						"{{api_id}}",
+						"execute-api",
+						"{{aws_server}}"
+					],
+					"path": [
+						"{{env}}",
+						"my-teams"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Health Checks: Get Status",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "https://{{api_id}}.execute-api.{{aws_server}}/{{env}}/health-check/status?teamId=4efc073f-440d-43a3-987d-53f8a5ee5b51",
+					"protocol": "https",
+					"host": [
+						"{{api_id}}",
+						"execute-api",
+						"{{aws_server}}"
+					],
+					"path": [
+						"{{env}}",
+						"health-check",
+						"status"
+					],
+					"query": [
+						{
+							"key": "teamId",
+							"value": "4efc073f-440d-43a3-987d-53f8a5ee5b51"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Health Checks: Create",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"teamId\": \"4efc073f-440d-43a3-987d-53f8a5ee5b51\"\n}"
+				},
+				"url": {
+					"raw": "https://{{api_id}}.execute-api.{{aws_server}}/{{env}}/health-check",
+					"protocol": "https",
+					"host": [
+						"{{api_id}}",
+						"execute-api",
+						"{{aws_server}}"
+					],
+					"path": [
+						"{{env}}",
+						"health-check"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Health Checks: End",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"teamId\": \"4efc073f-440d-43a3-987d-53f8a5ee5b51\"\n}"
+				},
+				"url": {
+					"raw": "https://{{api_id}}.execute-api.{{aws_server}}/{{env}}/health-check/end",
+					"protocol": "https",
+					"host": [
+						"{{api_id}}",
+						"execute-api",
+						"{{aws_server}}"
+					],
+					"path": [
+						"{{env}}",
+						"health-check",
+						"end"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Health Statuses: Create",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"healthCheckId\": \"\",\n\t\"categories\": \"\"\n}"
+				},
+				"url": {
+					"raw": "https://{{api_id}}.execute-api.{{aws_server}}/{{env}}/health-status",
+					"protocol": "https",
+					"host": [
+						"{{api_id}}",
+						"execute-api",
+						"{{aws_server}}"
+					],
+					"path": [
+						"{{env}}",
+						"health-status"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "oauth2",
+		"oauth2": [
+			{
+				"key": "accessToken",
+				"value": "eyJraWQiOiI1QWlnVytkc2R6R3hHZ2JxS3VJRmFBRWtaQ1c5dm55TjRzR1AzajFmdVpFPSIsImFsZyI6IlJTMjU2In0.eyJhdF9oYXNoIjoiODNCNjhyU2NPa3pBTUdweDBfQXVjdyIsInN1YiI6Ijc3MzJhZTM1LTcxNDktNGQ1Yi05NjMzLTE4NGVjMTAzYjBhYyIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAuZXUtd2VzdC0yLmFtYXpvbmF3cy5jb21cL2V1LXdlc3QtMl95SGxIdE1JWUkiLCJjb2duaXRvOnVzZXJuYW1lIjoiNzczMmFlMzUtNzE0OS00ZDViLTk2MzMtMTg0ZWMxMDNiMGFjIiwiYXVkIjoiN3A5MW9lOGltaWRxMjZucHRjdWphN241MzIiLCJldmVudF9pZCI6ImE0MWI3ZGE3LTE4M2MtMTFlOS05YzgzLWZmYmExMGJhMzc0NiIsInRva2VuX3VzZSI6ImlkIiwiYXV0aF90aW1lIjoxNTQ3NDk4NDM0LCJuYW1lIjoiT3NrYXIiLCJleHAiOjE1NDc1MDIwMzQsImlhdCI6MTU0NzQ5ODQzNCwiZW1haWwiOiJwcml2Lm9za2FyQGdtYWlsLmNvbSJ9.h7CmkZJ26kcEd-GLFJn-rDQHt747Rtvwc6J-xqf_oEyAP8lqStV9I6IgnxqvqpW7jpKNpvFPt9bLWo6Zi1ATO1LNme5UXfJtwYH_nyls2YMGM6LPCg0FmCKJiPZGI6Q5w5FkW-5I2QL5hQqRz3wHwMgQapWZsvoh4B7vdzosie4Hs0bfd3AaV1oS8Ssz0aUDKPge_6-IKEpfBjriLbc9GO_9x9nCZfC7IGNEnZS4wC2RUGIQA-F-W7THHLeQM6cgQSOQ9n7JTVM038nHoArueEpowlzy_kHpbmav3-7sbwkBA10zC102jYJBLq-lc5IBEQRn5f-5tuPGLGSR6X5nOQ",
+				"type": "string"
+			},
+			{
+				"key": "tokenType",
+				"value": "Bearer",
+				"type": "string"
+			},
+			{
+				"key": "addTokenTo",
+				"value": "header",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "f2f42877-1808-4a56-837b-7ca72bf0c27c",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "cb0c051a-604b-486d-b8dd-aaf24eb12188",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"id": "1869504c-1963-4832-998a-7988a307ae36",
+			"key": "api_id",
+			"value": "xcq0mzir8d",
+			"type": "string"
+		},
+		{
+			"id": "fa29a51c-074f-45b1-9860-4db6b289d179",
+			"key": "aws_server",
+			"value": "eu-west-2.amazonaws.com",
+			"type": "string"
+		}
+	]
+}

@@ -107,6 +107,25 @@ functions:
       FUNCTION: create-profile
       REGION: ${self:provider.region}
       STAGE: ${self:provider.stage}
+  get-health-check-status:
+    handler: functions/get-health-check-status.lambda
+    description: |
+      Get the current status of health checks for the specified team.
+      The function returns information, that health check has ended,
+      or list of users who sent the status otherwise.
+    role: arn:aws:iam::771291245740:role/HealthCheck_lambda
+    events:
+      - http:
+          path: health-check/status
+          method: get
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+    environment:
+      FUNCTION: get-health-check-status
+      REGION: ${self:provider.region}
+      STAGE: ${self:provider.stage}
 resources:
   Resources:
     TeamsTable:
@@ -152,7 +171,7 @@ resources:
         AuthorizerResultTtlInSeconds: 300
         IdentitySource: method.request.header.Authorization
         Name: HealthCheckCognito
-        RestApiId: z4evuu990j
+        RestApiId: xcq0mzir8d
         Type: COGNITO_USER_POOLS
         ProviderARNs:
           - arn:aws:cognito-idp:eu-west-2:771291245740:userpool/eu-west-2_yHlHtMIYI
