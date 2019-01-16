@@ -3,22 +3,32 @@ const db = new AWS.DynamoDB.DocumentClient()
 
 module.exports.lambda = async (event, context) => {
     const profileId = event.requestContext.authorizer.claims.sub
-    let teams = []
-    console.log(event);
 
     const profile = await getProfile(profileId)
-    if(profile.teams.length){
-        teams = await findTeams(profile.teams)
+    if (profile.teams.length === 0) {
+        return {
+            statusCode: 200,
+            body: JSON.stringify([])
+        }
     }
+
+    const teams = await findTeams(profile.teams)
+    const teamsWithUsers = await (Promise.all(teams.map(async t => {
+        const users = await findBatchProfiles(t.users)
+        return {
+            ...t,
+            users
+        }
+    })))
     return {
         statusCode: 200,
-        body: JSON.stringify(teams)
+        body: JSON.stringify(teamsWithUsers)
     }
 };
 
-async function getProfile(profileId){
+async function getProfile (profileId) {
     const params = {
-        TableName : `HC-${process.env.STAGE}-Profiles`,
+        TableName: `HC-${process.env.STAGE}-Profiles`,
         KeyConditionExpression: 'id = :id',
         ExpressionAttributeValues: {
             ':id': profileId
@@ -27,7 +37,18 @@ async function getProfile(profileId){
     return (await db.query(params).promise()).Items[0]
 }
 
-async function findTeams(teams){
+async function findBatchProfiles (users) {
+    const params = {
+        RequestItems: {
+            [`HC-${process.env.STAGE}-Profiles`]: {
+                Keys: users.map(u => ({id: u}))
+            }
+        }
+    }
+    return (await db.batchGet(params).promise()).Responses[`HC-${process.env.STAGE}-Profiles`]
+}
+
+async function findTeams (teams) {
     var params = {
         RequestItems: {
             [`HC-${process.env.STAGE}-Teams`]: {

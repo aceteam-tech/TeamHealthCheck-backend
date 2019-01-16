@@ -3,7 +3,7 @@ const db = new AWS.DynamoDB.DocumentClient()
 
 module.exports.lambda = async (event, context) => {
     const profileId = event.requestContext.authorizer.claims.sub
-    const {healthCheckId, categories} = event.body
+    const {healthCheckId, categories} = JSON.parse(event.body)
 
     const healthStatus = await postHealthStatus(profileId, healthCheckId, categories)
 

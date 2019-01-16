@@ -4,10 +4,18 @@ const db = new AWS.DynamoDB.DocumentClient()
 const MAX_POINTS = 2
 
 module.exports.lambda = async (event) => {
-    const {teamId} = event.body
+    const {teamId} = JSON.parse(event.body)
 
     const healthCheck = await fetchActiveHealthCheck(teamId)
     const healthStatuses = await fetchHealthStatuses(healthCheck.id)
+
+    if(healthStatuses.length === 0){
+        const updated = await putHealthCheck(healthCheck, healthCheck.categories)
+        return {
+            statusCode: 200,
+            body: JSON.stringify(updated)
+        }
+    }
 
     const allHealthStatusesCategories = [].concat(...healthStatuses.map(s => s.categories))
 
@@ -21,7 +29,11 @@ module.exports.lambda = async (event) => {
             value: categorySum * 100 / categoryStatuses.length / MAX_POINTS
         }
     })
-    return putHealthCheck(healthCheck, calculatedCategories)
+    const updated = await putHealthCheck(healthCheck, calculatedCategories)
+    return {
+        statusCode: 200,
+        body: JSON.stringify(updated)
+    }
 };
 
 async function fetchActiveHealthCheck(teamId){

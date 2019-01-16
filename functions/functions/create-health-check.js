@@ -4,7 +4,7 @@ const uuid = require('uuid/v4')
 
 module.exports.lambda = async (event) => {
     const profileId = event.requestContext.authorizer.claims.sub
-    const {teamId} = event.body
+    const {teamId} = JSON.parse(event.body)
 
     const team = await fetchTeam(teamId)
     if(team.users.includes(profileId)){
