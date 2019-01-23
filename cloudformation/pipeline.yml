@@ -12,17 +12,9 @@ Parameters:
     Default: HC-backend-webhook
     Description: Github webhook for new changes
     Type: String
-  TemplateFileName:
-    Default: cloudformation/dynamo-db.yml
-    Description: The path to the deployment cloudformation template
-    Type: String
   TestStackName:
     Default: HealthCheck-functions-dev
     Description: A name for the test WordPress stack
-    Type: String
-  TestStackConfig:
-    Default: cloudformation/configuration-dev.json
-    Description: The configuration file name for the test environment
     Type: String
   OAuthToken:
     Type: 'AWS::SSM::Parameter::Value<String>'
@@ -47,10 +39,24 @@ Metadata:
           default: "Test Stack Settings"
         Parameters:
           - TestStackName
-          - TemplateFileName
-          - TestStackConfig
 
 Resources:
+  CodeBuild:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Artifacts:
+        Type: CODEPIPELINE
+      Description: Build process to run the serverless deploy to staging environment
+      Environment:
+        ComputeType: BUILD_GENERAL1_SMALL
+#        EnvironmentVariables:
+#          - EnvironmentVariable
+        Image: aws/codebuild/nodejs:10.14.1
+        Type: LINUX_CONTAINER
+      Name: HC_build
+      ServiceRole: !GetAtt [PipelineRole, Arn]
+      Source:
+        Type: CODEPIPELINE
   Pipeline:
     Type: AWS::CodePipeline::Pipeline
     Properties:
@@ -81,18 +87,14 @@ Resources:
           Actions:
             - Name: Deploy
               ActionTypeId:
-                Category: Deploy
+                Category: Build
                 Owner: AWS
-                Provider: CloudFormation
+                Provider: CodeBuild
                 Version: '1'
               InputArtifacts:
                 - Name: TemplateSource
               Configuration:
-                ActionMode: CREATE_UPDATE
-                RoleArn: !GetAtt [CFNRole, Arn]
-                StackName: !Ref TestStackName
-                TemplateConfiguration: !Sub "TemplateSource::${TestStackConfig}"
-                TemplatePath: !Sub "TemplateSource::${TemplateFileName}"
+                ProjectName: HC_build
               RunOrder: '1'
 
   Webhook:
@@ -127,13 +129,15 @@ Resources:
   PipelineRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: HC-functions-CodePipeline
+      RoleName: HC-CodePipeline
       AssumeRolePolicyDocument:
         Statement:
         - Action: ['sts:AssumeRole']
           Effect: Allow
           Principal:
-            Service: [codepipeline.amazonaws.com]
+            Service:
+              - codepipeline.amazonaws.com
+              - codebuild.amazonaws.com
         Version: '2012-10-17'
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/AdministratorAccess
