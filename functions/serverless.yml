@@ -16,10 +16,7 @@ provider:
   apiGateway:
     restApiId:
       Ref: API
-    restApiRootResourceId:
-      Fn::GetAtt:
-        - API
-        - RootResourceId
+    restApiRootResourceId: {"Fn::GetAtt": ["API", "RootResourceId"]}
 
 package:
 #  individually: true
@@ -31,7 +28,7 @@ functions:
   get-my-teams:
     handler: functions/get-my-teams.lambda
     description: Returns users teams
-    role: arn:aws:iam::771291245740:role/HealthCheck_lambda
+    role: {"Fn::GetAtt": ["IAMLambdaRole", "Arn"]}
     events:
       - http:
           path: my-teams
@@ -48,7 +45,7 @@ functions:
   create-team:
     handler: functions/create-team.lambda
     description: Create a new team and assign the user who creates it
-    role: arn:aws:iam::771291245740:role/HealthCheck_lambda
+    role: {"Fn::GetAtt": ["IAMLambdaRole", "Arn"]}
     events:
       - http:
           path: my-teams
@@ -65,7 +62,7 @@ functions:
   create-health-status:
     handler: functions/create-health-status.lambda
     description: Sends new health status for a health check
-    role: arn:aws:iam::771291245740:role/HealthCheck_lambda
+    role: {"Fn::GetAtt": ["IAMLambdaRole", "Arn"]}
     events:
       - http:
           path: health-status
@@ -82,7 +79,7 @@ functions:
   create-health-check:
     handler: functions/create-health-check.lambda
     description: Create new health check for a team
-    role: arn:aws:iam::771291245740:role/HealthCheck_lambda
+    role: {"Fn::GetAtt": ["IAMLambdaRole", "Arn"]}
     events:
       - http:
           path: health-check
@@ -99,7 +96,7 @@ functions:
   end-health-check:
     handler: functions/end-health-check.lambda
     description: End the health check and compute results
-    role: arn:aws:iam::771291245740:role/HealthCheck_lambda
+    role: {"Fn::GetAtt": ["IAMLambdaRole", "Arn"]}
     events:
       - http:
           path: health-check/end
@@ -116,7 +113,7 @@ functions:
   createProfile:
     handler: functions/create-profile.lambda
     description: Create user profile with id the same as Cognito UID
-    role: arn:aws:iam::771291245740:role/HealthCheck_lambda
+    role: {"Fn::GetAtt": ["IAMLambdaRole", "Arn"]}
     environment:
       FUNCTION: create-profile
       REGION: ${self:provider.region}
@@ -128,7 +125,7 @@ functions:
       Get the current status of health checks for the specified team.
       The function returns information, that health check has ended,
       or list of users who sent the status otherwise.
-    role: arn:aws:iam::771291245740:role/HealthCheck_lambda
+    role: {"Fn::GetAtt": ["IAMLambdaRole", "Arn"]}
     events:
       - http:
           path: health-check/status
@@ -182,6 +179,24 @@ resources:
           - AttributeName: date
             KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
+
+#   IAM
+    IAMLambdaRole:
+      Type: AWS::IAM::Role
+      Properties:
+        AssumeRolePolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            -
+              Effect: Allow
+              Principal:
+                Service:
+                  - "lambda.amazonaws.com"
+              Action:
+                - "sts:AssumeRole"
+        ManagedPolicyArns:
+          - arn:aws:iam::aws:policy/AWSLambdaFullAccess
+        RoleName: HC_lambda
 
 #   API
     API:
