@@ -26,7 +26,7 @@ package:
 functions:
 
   get-my-teams:
-    handler: functions/get-my-teams.lambda
+    handler: functions/team/get-my-teams.lambda
     description: Returns users teams
     role: {"Fn::GetAtt": ["IAMLambdaRole", "Arn"]}
     events:
@@ -43,7 +43,7 @@ functions:
       STAGE: ${self:provider.stage}
 
   create-team:
-    handler: functions/create-team.lambda
+    handler: functions/team/create-team.lambda
     description: Create a new team and assign the user who creates it
     role: {"Fn::GetAtt": ["IAMLambdaRole", "Arn"]}
     events:
@@ -58,7 +58,22 @@ functions:
       FUNCTION: create-team
       REGION: ${self:provider.region}
       STAGE: ${self:provider.stage}
-
+  join-team:
+    handler: functions/team/join-team.lambda
+    description: Assign user to the team
+    role: arn:aws:iam::771291245740:role/HealthCheck_lambda
+    events:
+      - http:
+          path: join-team
+          method: post
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+    environment:
+      FUNCTION: join-team
+      REGION: ${self:provider.region}
+      STAGE: ${self:provider.stage}
   create-health-status:
     handler: functions/create-health-status.lambda
     description: Sends new health status for a health check
