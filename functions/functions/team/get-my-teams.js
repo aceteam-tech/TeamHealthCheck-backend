@@ -1,10 +1,11 @@
-const AWS = require('aws-sdk')
-const db = new AWS.DynamoDB.DocumentClient()
+const findTeamsDB = require('../../database/teams/find-batch-teams.dynamodb')
+const getProfileDB = require('../../database/profiles/get-profile.dynamodb')
+const getProfilesDB = require('../../database/profiles/get-batch-profiles.dynamodb')
 
 module.exports.lambda = async (event, context) => {
     const profileId = event.requestContext.authorizer.claims.sub
 
-    const profile = await getProfile(profileId)
+    const profile = await getProfileDB(profileId)
     if (profile.teams.length === 0) {
         return {
             statusCode: 200,
@@ -12,9 +13,9 @@ module.exports.lambda = async (event, context) => {
         }
     }
 
-    const teams = await findTeams(profile.teams)
+    const teams = await findTeamsDB(profile.teams)
     const teamsWithUsers = await (Promise.all(teams.map(async t => {
-        const users = await findBatchProfiles(t.users)
+        const users = await getProfilesDB(t.users)
         return {
             ...t,
             users
@@ -25,37 +26,3 @@ module.exports.lambda = async (event, context) => {
         body: JSON.stringify(teamsWithUsers)
     }
 };
-
-async function getProfile (profileId) {
-    const params = {
-        TableName: `HC-${process.env.STAGE}-Profiles`,
-        KeyConditionExpression: 'id = :id',
-        ExpressionAttributeValues: {
-            ':id': profileId
-        }
-    }
-    return (await db.query(params).promise()).Items[0]
-}
-
-async function findBatchProfiles (users) {
-    const params = {
-        RequestItems: {
-            [`HC-${process.env.STAGE}-Profiles`]: {
-                Keys: users.map(u => ({id: u}))
-            }
-        }
-    }
-    return (await db.batchGet(params).promise()).Responses[`HC-${process.env.STAGE}-Profiles`]
-}
-
-async function findTeams (teams) {
-    var params = {
-        RequestItems: {
-            [`HC-${process.env.STAGE}-Teams`]: {
-                Keys: teams.map(t => ({id: t}))
-            }
-        }
-    };
-
-    return (await db.batchGet(params).promise()).Responses[`HC-${process.env.STAGE}-Teams`]
-}

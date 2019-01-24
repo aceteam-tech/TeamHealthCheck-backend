@@ -1,31 +1,16 @@
-const AWS = require('aws-sdk')
-const db = new AWS.DynamoDB.DocumentClient()
-const uuid = require('uuid/v4')
-const initialCategories = require('./initialCategories.json')
-const joinTeam = require('./team').joinTeam
+const initialCategories = require('../../consts/initial-categories.json')
+const joinTeam = require('../../helpers/join-team.helper');
+const createTeamDB = require('../../database/teams/create-team.dynamodb')
 
-module.exports.lambda = async (event, context) => {
+module.exports.lambda = async (event) => {
     const profileId = event.requestContext.authorizer.claims.sub
     const {teamName} = JSON.parse(event.body)
-    let team = await createTeam(teamName, profileId)
+
+    let team = await createTeamDB(teamName, initialCategories)
     team = await joinTeam(team.id, profileId)
 
     return {
         statusCode: 200,
         body: JSON.stringify(team)
     }
-};
-
-async function createTeam(name){
-    const params = {
-        TableName : `HC-${process.env.STAGE}-Teams`,
-        Item: {
-            id: uuid(),
-            name,
-            users: [],
-            categories: initialCategories
-        }
-    }
-    await db.put(params).promise()
-    return params.Item
 }
