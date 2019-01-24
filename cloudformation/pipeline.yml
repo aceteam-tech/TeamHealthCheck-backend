@@ -112,20 +112,6 @@ Resources:
       TargetPipelineVersion: !GetAtt Pipeline.Version
       RegisterWithThirdParty: 'true'
 
-  CFNRole:
-    Type: AWS::IAM::Role
-    Properties:
-      RoleName: HC-functions-CloudFormation
-      AssumeRolePolicyDocument:
-        Statement:
-        - Action: ['sts:AssumeRole']
-          Effect: Allow
-          Principal:
-            Service: [cloudformation.amazonaws.com]
-        Version: '2012-10-17'
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/AdministratorAccess
-
   PipelineRole:
     Type: AWS::IAM::Role
     Properties:
