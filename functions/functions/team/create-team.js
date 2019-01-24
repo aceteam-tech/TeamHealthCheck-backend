@@ -7,8 +7,8 @@ const joinTeam = require('./team').joinTeam
 module.exports.lambda = async (event, context) => {
     const profileId = event.requestContext.authorizer.claims.sub
     const {teamName} = JSON.parse(event.body)
-    const team = await createTeam(teamName, profileId)
-    const team = await joinTeam(team.id, profileId)
+    let team = await createTeam(teamName, profileId)
+    team = await joinTeam(team.id, profileId)
 
     return {
         statusCode: 200,
