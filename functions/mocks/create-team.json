@@ -1,6 +1,6 @@
 {
   "body":{
-    "teamName": "Oskar Team"
+    "teamName": "Test Team"
   },
   "requestContext": {
     "authorizer": {
