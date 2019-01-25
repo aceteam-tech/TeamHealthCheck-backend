@@ -1,18 +1,9 @@
-const AWS = require('aws-sdk')
-const db = new AWS.DynamoDB.DocumentClient()
+const putProfileDB = require('../database/profiles/put-profile.dynamodb')
 
-module.exports.lambda = async (event, context) => {
+module.exports.lambda = async (event) => {
     const {userName} = event
     const {name} = event.request.userAttributes
-    const params = {
-        TableName: `HC-${process.env.STAGE}-Profiles`,
-        Item: {
-            id:userName,
-            name,
-            teams:[]
-        }
-    }
-    await db.put(params).promise()
 
+    await putProfileDB(userName, name)
     return event;
 };

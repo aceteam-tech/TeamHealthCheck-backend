@@ -1,0 +1,12 @@
+{
+  "body":{
+    "teamName": "Test Team"
+  },
+  "requestContext": {
+    "authorizer": {
+      "claims": {
+        "sub": "d86b0fd6-773d-433f-b880-2a7641a9687a"
+      }
+    }
+  }
+}

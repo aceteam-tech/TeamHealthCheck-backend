@@ -25,6 +25,7 @@ package:
     - package-lock.json
 functions:
 
+# Teams
   get-my-teams:
     handler: functions/team/get-my-teams.lambda
     description: Returns users teams
@@ -74,6 +75,8 @@ functions:
       FUNCTION: join-team
       REGION: ${self:provider.region}
       STAGE: ${self:provider.stage}
+
+# Health Status
   create-health-status:
     handler: functions/create-health-status.lambda
     description: Sends new health status for a health check
@@ -91,8 +94,9 @@ functions:
       REGION: ${self:provider.region}
       STAGE: ${self:provider.stage}
 
+# Health Check
   create-health-check:
-    handler: functions/create-health-check.lambda
+    handler: functions/health-check/create-health-check.lambda
     description: Create new health check for a team
     role: {"Fn::GetAtt": ["IAMLambdaRole", "Arn"]}
     events:
@@ -109,7 +113,7 @@ functions:
       STAGE: ${self:provider.stage}
 
   end-health-check:
-    handler: functions/end-health-check.lambda
+    handler: functions/health-check/end-health-check.lambda
     description: End the health check and compute results
     role: {"Fn::GetAtt": ["IAMLambdaRole", "Arn"]}
     events:
@@ -125,17 +129,8 @@ functions:
       REGION: ${self:provider.region}
       STAGE: ${self:provider.stage}
 
-  createProfile:
-    handler: functions/create-profile.lambda
-    description: Create user profile with id the same as Cognito UID
-    role: {"Fn::GetAtt": ["IAMLambdaRole", "Arn"]}
-    environment:
-      FUNCTION: create-profile
-      REGION: ${self:provider.region}
-      STAGE: ${self:provider.stage}
-
   get-health-check-status:
-    handler: functions/get-health-check-status.lambda
+    handler: functions/health-check/get-health-check-status.lambda
     description: |
       Get the current status of health checks for the specified team.
       The function returns information, that health check has ended,
@@ -153,6 +148,17 @@ functions:
       FUNCTION: get-health-check-status
       REGION: ${self:provider.region}
       STAGE: ${self:provider.stage}
+
+# Profile
+  createProfile:
+    handler: functions/create-profile.lambda
+    description: Create user profile with id the same as Cognito UID
+    role: {"Fn::GetAtt": ["IAMLambdaRole", "Arn"]}
+    environment:
+      FUNCTION: create-profile
+      REGION: ${self:provider.region}
+      STAGE: ${self:provider.stage}
+
 resources:
   Resources:
 
