@@ -129,6 +129,23 @@ functions:
       REGION: ${self:provider.region}
       STAGE: ${self:provider.stage}
 
+  get-health-checks:
+    handler: functions/health-check/get-health-checks.lambda
+    description: Returns array of all ended health checks
+    role: {"Fn::GetAtt": ["IAMLambdaRole", "Arn"]}
+    events:
+      - http:
+          path: health-checks
+          method: get
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+    environment:
+      FUNCTION: get-health-checks
+      REGION: ${self:provider.region}
+      STAGE: ${self:provider.stage}
+
   get-health-check-status:
     handler: functions/health-check/get-health-check-status.lambda
     description: |

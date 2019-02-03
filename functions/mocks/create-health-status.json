@@ -1,10 +1,10 @@
 {
   "body": {
-    "healthCheckId": "8e6f3f5a-598b-4f0f-a221-9c8043644618",
+    "healthCheckId": "f4388a85-9a01-4d10-8ee1-8b448bb8a3c0",
     "categories": [
       {
         "id": "1",
-        "value": 2
+        "value": 1
       },
       {
         "id": "2",
@@ -12,7 +12,7 @@
       },
       {
         "id": "3",
-        "value": 2
+        "value": 0
       },
       {
         "id": "4",
@@ -20,7 +20,7 @@
       },
       {
         "id": "5",
-        "value": 2
+        "value": 1
       },
       {
         "id": "6",
@@ -32,15 +32,15 @@
       },
       {
         "id": "8",
-        "value": 2
+        "value": 1
       },
       {
         "id": "9",
-        "value": 2
+        "value": 1
       },
       {
         "id": "10",
-        "value": 2
+        "value": 0
       },
       {
         "id": "11",
@@ -51,7 +51,7 @@
   "requestContext": {
     "authorizer": {
       "claims": {
-        "sub": "7732ae35-7149-4d5b-9633-184ec103b0ac"
+        "sub": "74ad6bb6-0d48-4e9d-9890-43639653525b"
       }
     }
   }
