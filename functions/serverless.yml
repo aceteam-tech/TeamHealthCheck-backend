@@ -170,11 +170,20 @@ resources:
         AttributeDefinitions:
           - AttributeName: id
             AttributeType: S
+          - AttributeName: code
+            AttributeType: S
         KeySchema:
           - AttributeName: id
             KeyType: HASH
         BillingMode: PAY_PER_REQUEST
-    TablesTable:
+        GlobalSecondaryIndexes:
+          - IndexName: gsi_code
+            KeySchema:
+              - AttributeName: code
+                KeyType: HASH
+            Projection:
+              ProjectionType: KEYS_ONLY
+    ProfilesTable:
       Type: AWS::DynamoDB::Table
       Properties:
         TableName: HC-${self:provider.stage}-Profiles

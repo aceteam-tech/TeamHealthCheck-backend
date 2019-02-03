@@ -2,12 +2,14 @@ const uuid = require('uuid/v4')
 const AWS = require('aws-sdk')
 const db = new AWS.DynamoDB.DocumentClient()
 
-module.exports = async function(name, categories) {
+module.exports = async function(code, name, categories) {
+    const id = uuid()
     const params = {
         TableName : `HC-${process.env.STAGE}-Teams`,
         Item: {
-            id: uuid(),
+            id,
             name,
+            code,
             users: [],
             categories
         }
