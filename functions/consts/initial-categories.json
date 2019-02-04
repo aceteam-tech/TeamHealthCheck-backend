@@ -4,7 +4,7 @@
         "descriptionRed": "We never have time to learn anything.",
         "groupId": "1",
         "id": "2",
-        "image": "https://s3.amazonaws.com/squad-health-check/icons/learning-2x.png",
+        "image": "learning",
         "name": "Learning"
     },
     {
@@ -12,6 +12,7 @@
         "descriptionRed": "We are just pawns in a game of chess with no influence over what we build or how we build it.",
         "groupId": "1",
         "id": "8",
+        "image": "pawnsOrPlayers",
         "name": "Pawns or Players"
     },
     {
@@ -19,6 +20,7 @@
         "descriptionRed": "We never seem to get anything done. We keep getting stuck or interrupted. Stories keep getting stuck on dependencies.",
         "groupId": "1",
         "id": "9",
+        "image": "speed",
         "name": "Speed"
     },
     {
@@ -26,6 +28,7 @@
         "descriptionRed": "We are a bunch of individuals that neither know nor care about what the other people in the squad are doing. ",
         "groupId": "1",
         "id": "1",
+        "image": "teamwork",
         "name": "Teamwork"
     },
     {
@@ -33,7 +36,7 @@
         "descriptionRed": "Our code is a pile of dung and technical debt is raging out of control.",
         "groupId": "1",
         "id": "6",
-        "image": "https://s3.amazonaws.com/squad-health-check/icons/health-2x.png",
+        "image": "healthOfCodebase",
         "name": "Health of Codebase"
     },
     {
@@ -41,7 +44,7 @@
         "descriptionRed": "Boooooooring...",
         "groupId": "1",
         "id": "5",
-        "image": "https://s3.amazonaws.com/squad-health-check/icons/fun-2x.png",
+        "image": "fun",
         "name": "Fun"
     },
     {
@@ -49,6 +52,7 @@
         "descriptionRed": "Releasing is risky, painful, lots of manual work and takes forever.",
         "groupId": "1",
         "id": "4",
+        "image": "releasingProcess",
         "name": "Releasing process"
     },
     {
@@ -56,6 +60,7 @@
         "descriptionRed": "We have no idea why we are here, there's no high level picture or focus. Our so called mission is completely unclear and uninspiring.",
         "groupId": "1",
         "id": "7",
+        "image": "mission",
         "name": "Mission"
     },
     {
@@ -63,6 +68,7 @@
         "descriptionRed": "We keep getting stuck because we can't get the support and help that we ask for.",
         "groupId": "1",
         "id": "11",
+        "image": "support",
         "name": "Support"
     },
     {
@@ -70,7 +76,7 @@
         "descriptionRed": "We deliver crap. We feel\nashamed to deliver it.\nOur stakeholders hate\nus. ",
         "groupId": "1",
         "id": "3",
-        "image": "https://s3.amazonaws.com/squad-health-check/icons/delivery-value-3x.png",
+        "image": "deliveringValue",
         "name": "Delivering Value"
     },
     {
@@ -78,6 +84,7 @@
         "descriptionRed": "Our way of working sucks!",
         "groupId": "1",
         "id": "10",
-        "name": "Process"
+        "image": "suitableProcess",
+        "name": "Suitable process"
     }
 ]
