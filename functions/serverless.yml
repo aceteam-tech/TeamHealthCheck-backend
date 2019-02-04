@@ -2,7 +2,7 @@ service: HealthCheck
 frameworkVersion: ">=1.32.0 < 2.0.0"
 plugins:
   - serverless-pseudo-parameters
-#  - serverless-plugin-optimize
+  - serverless-plugin-optimize
 
 provider:
   name: aws
@@ -19,7 +19,7 @@ provider:
     restApiRootResourceId: {"Fn::GetAtt": ["API", "RootResourceId"]}
 
 package:
-#  individually: true
+  individually: true
   exclude:
     - package.json
     - package-lock.json

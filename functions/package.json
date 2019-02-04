@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest --watch",
     "dev": "sls deploy",
     "prod": "sls deploy --stage production"
   },
@@ -17,6 +17,7 @@
   },
   "devDependencies": {
     "aws-sdk": "^2.348.0",
+    "jest": "^24.0.0",
     "serverless": "^1.33.2",
     "serverless-plugin-optimize": "^4.0.2-rc.1",
     "serverless-pseudo-parameters": "^2.2.0"

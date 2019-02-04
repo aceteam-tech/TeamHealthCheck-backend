@@ -24,6 +24,7 @@ module.exports.lambda = async (event) => {
     return {
         statusCode: 200,
         body: JSON.stringify({
+            id: activeHealthCheck.id,
             ended: false,
             usersSubmitted,
             categories: activeHealthCheck.categories
