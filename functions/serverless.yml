@@ -62,7 +62,7 @@ functions:
   join-team:
     handler: functions/team/join-team.lambda
     description: Assign user to the team
-    role: arn:aws:iam::771291245740:role/HealthCheck_lambda
+    role: {"Fn::GetAtt": ["IAMLambdaRole", "Arn"]}
     events:
       - http:
           path: join-team
