@@ -233,19 +233,5 @@
 				]
 			}
 		}
-	],
-	"variable": [
-		{
-			"id": "1869504c-1963-4832-998a-7988a307ae36",
-			"key": "api_id",
-			"value": "xcq0mzir8d",
-			"type": "string"
-		},
-		{
-			"id": "fa29a51c-074f-45b1-9860-4db6b289d179",
-			"key": "aws_server",
-			"value": "eu-west-2.amazonaws.com",
-			"type": "string"
-		}
 	]
 }
