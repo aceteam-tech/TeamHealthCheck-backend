@@ -17,7 +17,7 @@ async function notifySlack(name, uuid, email) {
     const options = {
         method: 'POST',
         body: JSON.stringify({
-            text: `New user joined on \`${process.env.STAGE}\` environment`,
+            text: `New user has joined on \`${process.env.STAGE}\` environment`,
             "attachments": [
                 {
                     color,
