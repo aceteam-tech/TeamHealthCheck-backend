@@ -166,9 +166,9 @@ functions:
       REGION: ${self:provider.region}
       STAGE: ${self:provider.stage}
 
-# Profile
+# Triggers
   createProfile:
-    handler: functions/create-profile.lambda
+    handler: functions/triggers/create-profile.lambda
     description: Create user profile with id the same as Cognito UID
     role: {"Fn::GetAtt": ["IAMLambdaRole", "Arn"]}
     environment:
@@ -323,3 +323,13 @@ resources:
           - Fn::GetAtt:
             - UserPool
             - Arn
+
+#   SNS
+    NewProfileCreatedTopic:
+      Type: AWS::SNS::Topic
+      Properties:
+        DisplayName: ${self:provider.stage}-'New profile created'
+        Subscription:
+          - Endpoint: https://hooks.slack.com/services/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
+            Protocol: https
+        TopicName: ${self:provider.stage}-new-profile-created
