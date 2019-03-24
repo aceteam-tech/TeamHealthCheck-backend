@@ -2,22 +2,29 @@ const fetch = require('node-fetch')
 const putProfileDB = require('../../database/profiles/put-profile.dynamodb')
 
 module.exports.lambda = async (event) => {
-    const {userName: uuid} = event
-    const {name} = event.request.userAttributes
+    const { userName: uuid } = event
+    const { name, email } = event.request.userAttributes
 
     await putProfileDB(uuid, name)
-    if(['staging', 'production'].includes(process.env.STAGE)){
-        await notifySlack(name, uuid)
-    }
+    await notifySlack(name, uuid, email)
 
-    return event;
-};
+    return event
+}
 
-async function notifySlack(name, uuid){
+async function notifySlack(name, uuid, email) {
+    const color = ['staging', 'production'].includes(process.env.STAGE) ? "#66cc66" : "#6666cc"
+
     const options = {
         method: 'POST',
         body: JSON.stringify({
-            text: `User with name ${name} and id ${uuid} has just registered`
+            text: `New user joined on \`${process.env.STAGE}\` environment`,
+            "attachments": [
+                {
+                    color,
+                    author_name: `Name: ${name}`,
+                    text: `Id: ${uuid}\nEmail: ${email}`
+                }
+            ]
         }),
         headers: { 'Content-Type': 'application/json' }
     }
