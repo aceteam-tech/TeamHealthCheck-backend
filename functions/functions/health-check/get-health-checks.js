@@ -4,7 +4,8 @@ module.exports.lambda = async (event) => {
     const {teamId} = event.queryStringParameters
 
     const healthChecks = await queryEndedHealthChecksDB(teamId)
-    const healthChecksWithVotes = healthChecks.filter(hc=>hc.categories[0].value)
+    const healthChecksWithVotes = healthChecks.filter(hc=>typeof hc.categories[0].value !== 'undefined')
+
 
     return {
         statusCode: 200,
