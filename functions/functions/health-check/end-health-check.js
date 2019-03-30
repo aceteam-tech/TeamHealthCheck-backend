@@ -1,25 +1,36 @@
+const sumBy = require('lodash.sumby')
 const queryActiveHealthCheck = require('../../database/health-checks/query-active-health-check.dynamodb')
 const queryHealthCheckStatuses = require('../../database/health-statuses/query-health-check-statuses.dynamodb')
 const endHealthCheck = require('../../database/health-checks/end-health-check.dynamodb')
 
-function calculateCategories (votes, categories) {
+function flattenVotes(votes) {
+    return [].concat(...votes.map(s => s.categories))
+}
+
+function pickVotesForCategory(votes, categoryId){
+    return votes.filter(s => s.id === categoryId)
+}
+
+function calculateValue(totalPoints, votesCount){
     const MAX_POINTS = 2
 
-    const votesCategories = [].concat(...votes.map(s => s.categories))
+    return totalPoints * 100 / votesCount / MAX_POINTS
+}
 
-    return categories.map(c => {
-        const votes = votesCategories.filter(s => s.id === c.id)
-        if (!votes.length) return
+function categoryWithValue(category, votes){
+    const categoryVotes = pickVotesForCategory(votes, category.id)
+    if (!categoryVotes.length) return
 
-        const pointsTotal = votes
-            .map(s => s.value)
-            .reduce((prev, curr) => prev + curr)
+    const totalPoints = sumBy(categoryVotes, 'value')
 
-        const averageValue = pointsTotal * 100 / votes.length / MAX_POINTS
-        const categoryWithValue = {...c, value: averageValue}
+    const value = calculateValue(totalPoints, categoryVotes.length)
+    const categoryWithValue = {...category, value}
 
-        return categoryWithValue
-    }).filter(c=>c)
+    return categoryWithValue
+}
+
+function calculateCategories (votes, categories) {
+    return categories.map(c => categoryWithValue(c, votes)).filter(c=>c)
 }
 const lambda = async (event) => {
     const {teamId} = JSON.parse(event.body)
@@ -35,7 +46,8 @@ const lambda = async (event) => {
         }
     }
 
-    const calculatedCategories = calculateCategories(healthStatuses, healthCheck.categories)
+    const flattenedVotes = flattenVotes(healthStatuses)
+    const calculatedCategories = calculateCategories(flattenedVotes, healthCheck.categories)
     const updated = await endHealthCheck(healthCheck, calculatedCategories)
     return {
         statusCode: 200,
@@ -44,5 +56,6 @@ const lambda = async (event) => {
 }
 module.exports = {
     lambda,
+    flattenVotes,
     calculateCategories
 }
