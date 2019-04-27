@@ -9,5 +9,6 @@ module.exports = async (teamId) => {
             ':id': teamId
         }
     }
-    return (await db.query(params).promise()).Items[0]
+    const response = await db.query(params).promise()
+    return response.Items[0]
 }
