@@ -75,6 +75,22 @@ functions:
       FUNCTION: join-team
       REGION: ${self:provider.region}
       STAGE: ${self:provider.stage}
+  remove-from-team:
+    handler: functions/team/remove-from-team.lambda
+    description: Remove user from the team
+    role: {"Fn::GetAtt": ["IAMLambdaRole", "Arn"]}
+    events:
+      - http:
+          path: remove-from-team
+          method: post
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+    environment:
+      FUNCTION: remove-from-team
+      REGION: ${self:provider.region}
+      STAGE: ${self:provider.stage}
 
 # Health Status
   create-health-status:

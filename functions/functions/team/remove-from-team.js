@@ -3,7 +3,7 @@ const authorize = require('../../helpers/authorize')
 
 module.exports.lambda = async (event) => {
     const profileId = event.requestContext.authorizer.claims.sub
-    const { teamId, removedUserId } = event.body
+    const { teamId, removedUserId } = JSON.parse(event.body)
 
     let team
     try {
