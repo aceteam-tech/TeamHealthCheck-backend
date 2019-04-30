@@ -92,6 +92,24 @@ functions:
       REGION: ${self:provider.region}
       STAGE: ${self:provider.stage}
 
+# Profile
+  update-push-token:
+    handler: functions/update-push-token.lambda
+    description: Register user's push notification token
+    role: {"Fn::GetAtt": ["IAMLambdaRole", "Arn"]}
+    events:
+      - http:
+          path: push-tokens
+          method: post
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+    environment:
+      FUNCTION: update-push-token
+      REGION: ${self:provider.region}
+      STAGE: ${self:provider.stage}
+
 # Health Status
   create-health-status:
     handler: functions/create-health-status.lambda
