@@ -1,0 +1,8 @@
+{
+  "headers":{
+    "token": 123
+  },
+  "requestContext": {
+    "connectionId": 1
+  }
+}

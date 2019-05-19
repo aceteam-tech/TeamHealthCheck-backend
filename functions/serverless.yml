@@ -12,7 +12,7 @@ provider:
   tags:
     PROJECT: "HealthCheck"
     REGION: ${self:provider.region}
-  stage: ${opt:stage, 'dev'}
+  stage: ${opt:stage, 'ws'}
   apiGateway:
     restApiId:
       Ref: API
@@ -24,6 +24,36 @@ package:
     - package.json
     - package-lock.json
 functions:
+
+# Websockets
+  onConnect:
+    handler: handlers/onConnect.handler
+    role: {"Fn::GetAtt": ["IAMLambdaRole", "Arn"]}
+    events:
+      - websocket:
+          route: $connect
+    environment:
+      FUNCTION: onConnect
+      REGION: ${self:provider.region}
+      STAGE: ${self:provider.stage}
+  onDisconnect:
+      handler: handlers/onDisconnect.handler
+      role: {"Fn::GetAtt": ["IAMLambdaRole", "Arn"]}
+      events:
+        - websocket:
+            route: $disconnect
+      environment:
+        FUNCTION: onDisconnect
+        REGION: ${self:provider.region}
+        STAGE: ${self:provider.stage}
+
+  ws-test:
+    handler: handlers/ws-test.handler
+    events:
+      - websocket:
+          route: test
+  authorizer:
+    handler: handlers/authorizer.handler
 
 # Teams
   get-my-teams:
@@ -271,6 +301,21 @@ resources:
             AttributeType: S
         KeySchema:
           - AttributeName: health_check_id
+            KeyType: HASH
+          - AttributeName: user_id
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
+    ConnectionsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: HC-${self:provider.stage}-Connections
+        AttributeDefinitions:
+          - AttributeName: connection_id
+            AttributeType: S
+          - AttributeName: user_id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: connection_id
             KeyType: HASH
           - AttributeName: user_id
             KeyType: RANGE
