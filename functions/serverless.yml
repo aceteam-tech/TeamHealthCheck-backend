@@ -13,7 +13,7 @@ provider:
     PROJECT: "HealthCheck"
     REGION: ${self:provider.region}
   stage: ${opt:stage, 'ws'}
-#  websocketsApiName: HC-${self:provider.stage}-WebsocketsAPI
+  websocketsApiName: HC-${self:provider.stage}-WebsocketsAPI
   apiGateway:
     restApiId:
       Ref: API

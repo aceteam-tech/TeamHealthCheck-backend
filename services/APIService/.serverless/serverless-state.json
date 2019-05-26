@@ -48,7 +48,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/HC-APIService/ws/1558892096857-2019-05-26T17:34:56.857Z/createProfile.zip"
+                "S3Key": "serverless/HC-APIService/ws/1558901989904-2019-05-26T20:19:49.904Z/createProfile.zip"
               },
               "FunctionName": "HC-APIService-ws-createProfile",
               "Handler": "_optimize/HC-APIService-ws-createProfile/handlers/create-profile/create-profile.lambda",
@@ -302,6 +302,14 @@
             },
             "Export": {
               "Name": "ProfilesTable-ws"
+            }
+          },
+          "UserPoolID": {
+            "Value": {
+              "Ref": "UserPool"
+            },
+            "Export": {
+              "Name": "UserPool-ID-ws"
             }
           }
         }
@@ -571,6 +579,14 @@
           "Export": {
             "Name": "ProfilesTable-ws"
           }
+        },
+        "UserPoolID": {
+          "Value": {
+            "Ref": "UserPool"
+          },
+          "Export": {
+            "Name": "UserPool-ID-ws"
+          }
         }
       }
     },
@@ -578,7 +594,7 @@
   },
   "package": {
     "individually": true,
-    "artifactDirectoryName": "serverless/HC-APIService/ws/1558892096857-2019-05-26T17:34:56.857Z",
+    "artifactDirectoryName": "serverless/HC-APIService/ws/1558901989904-2019-05-26T20:19:49.904Z",
     "artifact": ""
   }
 }
