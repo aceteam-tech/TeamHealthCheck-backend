@@ -1,0 +1,141 @@
+service: HC-VotingService
+frameworkVersion: ">=1.32.0 < 2.0.0"
+plugins:
+  - serverless-pseudo-parameters
+  - serverless-plugin-optimize
+
+custom:
+  environment:
+    PROFILES_TABLE: HC-${self:provider.stage}-ProfilesTable
+    TEAMS_TABLE: HC-${self:provider.stage}-TeamsTable
+    VOTINGS_TABLE: HC-${self:provider.stage}-VotingsTable
+    VOTES_TABLE: HC-${self:provider.stage}-VotesTable
+    REGION: ${self:provider.region}
+    STAGE: ${self:provider.stage}
+  authorizer:
+    type: COGNITO_USER_POOLS
+    authorizerId:
+      Fn::ImportValue:
+         HTTPAuthorizer-ID-${self:provider.stage}
+  roleId:
+    Fn::ImportValue:
+      IAMLambdaRole-ARN-${self:provider.stage}
+  restApiId:
+    Fn::ImportValue:
+      HttpAPI-ID-${self:provider.stage}
+  restApiRootResourceId:
+    Fn::ImportValue:
+      HttpAPI-RootResourceId-${self:provider.stage}
+
+provider:
+  name: aws
+  runtime: nodejs8.10
+  region: ${opt:region, 'eu-west-2'}
+  memorySize: 128
+  tags:
+    PROJECT: "HealthCheck"
+    REGION: ${self:provider.region}
+  stage: ${opt:stage, 'ws'}
+  apiGateway:
+    restApiId: ${self:custom.restApiId}
+    restApiRootResourceId: ${self:custom.restApiRootResourceId}
+
+package:
+  individually: true
+  exclude:
+    - package.json
+    - package-lock.json
+
+functions:
+  startVoting:
+    handler: handlers/start-voting/start-voting.lambda
+    description: Start new voting
+    role: ${self:custom.roleId}
+    events:
+      - http:
+          path: votings
+          method: post
+          authorizer: ${self:custom.authorizer}
+    environment: ${self:custom.environment}
+
+  getVoting:
+    handler: handlers/get-voting/get-voting.lambda
+    description: |
+      Get the current status of the voting for the specified team.
+      The function returns information, that voting has ended,
+      or list of users who voted otherwise.
+    role: ${self:custom.roleId}
+    events:
+      - http:
+          path: votings/{teamId}
+          method: get
+          authorizer: ${self:custom.authorizer}
+    environment: ${self:custom.environment}
+
+  endVoting:
+    handler: handlers/end-voting/end-voting.lambda
+    description: End the voting and compute results for a specified team
+    role: ${self:custom.roleId}
+    events:
+      - http:
+          path: votings/{teamId}
+          method: put
+          authorizer: ${self:custom.authorizer}
+    environment: ${self:custom.environment}
+
+  getFinishedVotings:
+    handler: handlers/get-finished-votings/get-finished-votings.lambda
+    description: Returns array of all finished votings
+    role: ${self:custom.roleId}
+    events:
+      - http:
+          path: votings/{teamId}/finished
+          method: get
+          authorizer: ${self:custom.authorizer}
+    environment: ${self:custom.environment}
+
+  vote:
+    handler: handlers/vote/vote.lambda
+    description: Sends a new vote
+    role: ${self:custom.roleId}
+    events:
+      - http:
+          path: votings/{teamId}/vote
+          method: post
+          authorizer: ${self:custom.authorizer}
+    environment: ${self:custom.environment}
+
+
+
+resources:
+  Resources:
+    VotingsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:custom.environment.VOTINGS_TABLE}
+        AttributeDefinitions:
+          - AttributeName: team_id
+            AttributeType: S
+          - AttributeName: date
+            AttributeType: N
+        KeySchema:
+          - AttributeName: team_id
+            KeyType: HASH
+          - AttributeName: date
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
+    VotesTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:custom.environment.VOTES_TABLE}
+        AttributeDefinitions:
+          - AttributeName: voting_id
+            AttributeType: S
+          - AttributeName: user_id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: voting_id
+            KeyType: HASH
+          - AttributeName: user_id
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST

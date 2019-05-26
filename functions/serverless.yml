@@ -13,6 +13,7 @@ provider:
     PROJECT: "HealthCheck"
     REGION: ${self:provider.region}
   stage: ${opt:stage, 'ws'}
+#  websocketsApiName: HC-${self:provider.stage}-WebsocketsAPI
   apiGateway:
     restApiId:
       Ref: API
@@ -26,102 +27,116 @@ package:
 functions:
 
 # Websockets
-  onConnect:
-    handler: handlers/onConnect.handler
-    role: {"Fn::GetAtt": ["IAMLambdaRole", "Arn"]}
-    events:
-      - websocket:
-          route: $connect
-    environment:
-      FUNCTION: onConnect
-      REGION: ${self:provider.region}
-      STAGE: ${self:provider.stage}
-  onDisconnect:
-      handler: handlers/onDisconnect.handler
-      role: {"Fn::GetAtt": ["IAMLambdaRole", "Arn"]}
-      events:
-        - websocket:
-            route: $disconnect
-      environment:
-        FUNCTION: onDisconnect
-        REGION: ${self:provider.region}
-        STAGE: ${self:provider.stage}
-
-  ws-test:
-    handler: handlers/ws-test.handler
-    events:
-      - websocket:
-          route: test
-  authorizer:
-    handler: handlers/authorizer.handler
+#  onConnect:
+#    handler: handlers/onConnect.handler
+#    role: {"Fn::GetAtt": ["IAMLambdaRole", "Arn"]}
+#    events:
+#      - websocket:
+#          route: $connect
+#          authorizer:
+#            name: authorizer
+#            identitySource:
+#              - route.request.querystring.Authorization
+#    environment:
+#      FUNCTION: onConnect
+#      REGION: ${self:provider.region}
+#      STAGE: ${self:provider.stage}
+#  onDisconnect:
+#      handler: handlers/onDisconnect.handler
+#      role: {"Fn::GetAtt": ["IAMLambdaRole", "Arn"]}
+#      events:
+#        - websocket:
+#            route: $disconnect
+#      environment:
+#        FUNCTION: onDisconnect
+#        REGION: ${self:provider.region}
+#        STAGE: ${self:provider.stage}
+#
+#  authorizer:
+#    handler: handlers/authorizer.handler
+#    role: {"Fn::GetAtt": ["IAMLambdaRole", "Arn"]}
+#    environment:
+#      FUNCTION: authorizer
+#      REGION: ${self:provider.region}
+#      STAGE: ${self:provider.stage}
+#      ISS:
+#        Ref: UserPool
+#
+#  ws-test:
+#    handler: handlers/ws-test.handler
+#    events:
+#      - websocket:
+#          route: test
 
 # Teams
-  get-my-teams:
+  getMyTeams:
     handler: functions/team/get-my-teams.lambda
     description: Returns users teams
     role: {"Fn::GetAtt": ["IAMLambdaRole", "Arn"]}
     events:
       - http:
-          path: my-teams
-          method: get
+          path: teams
+          method: GET
           authorizer:
             type: COGNITO_USER_POOLS
             authorizerId:
               Ref: ApiGatewayAuthorizer
     environment:
-      FUNCTION: get-user-teams
+      FUNCTION: getMyTeams
       REGION: ${self:provider.region}
       STAGE: ${self:provider.stage}
 
-  create-team:
+  createTeam:
     handler: functions/team/create-team.lambda
     description: Create a new team and assign the user who creates it
     role: {"Fn::GetAtt": ["IAMLambdaRole", "Arn"]}
     events:
       - http:
-          path: my-teams
-          method: post
+          path: teams
+          method: POST
           authorizer:
             type: COGNITO_USER_POOLS
             authorizerId:
               Ref: ApiGatewayAuthorizer
     environment:
-      FUNCTION: create-team
+      FUNCTION: createTeam
       REGION: ${self:provider.region}
       STAGE: ${self:provider.stage}
-  join-team:
+
+  joinTeam:
     handler: functions/team/join-team.lambda
     description: Assign user to the team
     role: {"Fn::GetAtt": ["IAMLambdaRole", "Arn"]}
     events:
       - http:
-          path: join-team
-          method: post
+          path: teams/{teamId}/members
+          method: POST
           authorizer:
             type: COGNITO_USER_POOLS
             authorizerId:
               Ref: ApiGatewayAuthorizer
     environment:
-      FUNCTION: join-team
+      FUNCTION: joinTeam
       REGION: ${self:provider.region}
       STAGE: ${self:provider.stage}
-  remove-from-team:
+
+  removeFromTeam:
     handler: functions/team/remove-from-team.lambda
     description: Remove user from the team
     role: {"Fn::GetAtt": ["IAMLambdaRole", "Arn"]}
     events:
       - http:
-          path: remove-from-team
-          method: post
+          path: teams/{teamId}/members
+          method: DELETE
           authorizer:
             type: COGNITO_USER_POOLS
             authorizerId:
               Ref: ApiGatewayAuthorizer
     environment:
-      FUNCTION: remove-from-team
+      FUNCTION: removeFromTeam
       REGION: ${self:provider.region}
       STAGE: ${self:provider.stage}
-
+#
 # Profile
   update-push-token:
     handler: functions/update-push-token.lambda
@@ -345,6 +360,15 @@ resources:
       Properties:
         Name: HC-${self:provider.stage}-API
 
+    ConnectResponse:
+      Type: AWS::ApiGatewayV2::RouteResponse
+      Properties:
+        ApiId:
+          Ref: WebsocketsApi
+        RouteId:
+          Ref: SconnectWebsocketsRoute
+        RouteResponseKey: $default
+
 #   Cognito
     UserPool:
       Type: AWS::Cognito::UserPool
@@ -367,7 +391,10 @@ resources:
           - email
         UserPoolName: HC-${self:provider.stage}-UserPool
         LambdaConfig:
-          PreSignUp: { "Fn::GetAtt": ["CreateProfileLambdaFunction", "Arn" ] }
+          PreSignUp:
+            Fn::GetAtt:
+              - CreateProfileLambdaFunction
+              - Arn
         UserPoolTags:
           PROJECT: HealthCheck
     UserPoolLambdaInvokePermission:

@@ -1,0 +1,12 @@
+{
+  "body":{
+    "teamId": "c000c68b-9a0a-4fa4-a77e-b532d8f3feaa"
+  },
+  "requestContext": {
+    "authorizer": {
+      "claims": {
+        "sub": "25192ce6-a3a4-47e7-afbd-7d7b9ba0d9f1"
+      }
+    }
+  }
+}

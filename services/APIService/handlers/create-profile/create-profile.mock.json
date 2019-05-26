@@ -1,0 +1,9 @@
+{
+  "userName": "mocked-uuid-123",
+  "request": {
+    "userAttributes": {
+      "name": "Mocked User",
+      "email": "my@email.mocked"
+    }
+  }
+}

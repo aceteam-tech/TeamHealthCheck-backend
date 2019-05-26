@@ -1,0 +1,13 @@
+{
+  "body":{
+    "teamId": "d8b8d5a3-9995-4293-bf68-3c966da18eef",
+    "removedUserId": "4e01b907-c785-41c8-8820-7553e6685638"
+  },
+  "requestContext": {
+    "authorizer": {
+      "claims": {
+        "sub": "4c7f05e4-65bc-4ddd-8274-c2897de3c725"
+      }
+    }
+  }
+}

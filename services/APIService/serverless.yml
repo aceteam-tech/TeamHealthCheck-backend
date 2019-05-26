@@ -1,0 +1,187 @@
+service: HC-APIService
+frameworkVersion: ">=1.32.0 < 2.0.0"
+plugins:
+  - serverless-pseudo-parameters
+  - serverless-plugin-optimize
+
+custom:
+  profilesTableName: HC-${self:provider.stage}-ProfilesTable
+  roleId:
+    Fn::ImportValue:
+      IAMLambdaRole-ARN-${self:provider.stage}
+  slackNotifyUrl: https://hooks.slack.com/services/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
+
+provider:
+  name: aws
+  runtime: nodejs8.10
+  region: ${opt:region, 'eu-west-2'}
+  memorySize: 128
+  tags:
+    PROJECT: "HealthCheck"
+    REGION: ${self:provider.region}
+  stage: ${opt:stage, 'ws'}
+
+package:
+  individually: true
+  exclude:
+    - package.json
+    - package-lock.json
+
+functions:
+
+  createProfile:
+    handler: handlers/create-profile/create-profile.lambda
+    description: Create user profile with id the same as Cognito UID
+    role: {"Fn::GetAtt": ["IAMLambdaRole", "Arn"]}
+    environment:
+      FUNCTION: create-profile
+      PROFILES_TABLE: ${self:custom.profilesTableName}
+      SLACK_NOTIFY_URL: ${self:custom.slackNotifyUrl}
+      REGION: ${self:provider.region}
+      STAGE: ${self:provider.stage}
+
+resources:
+  Resources:
+
+    ProfilesTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: HC-${self:provider.stage}-ProfilesTable
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+
+#   IAM
+    IAMLambdaRole:
+      Type: AWS::IAM::Role
+      Properties:
+        AssumeRolePolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            -
+              Effect: Allow
+              Principal:
+                Service:
+                  - "lambda.amazonaws.com"
+              Action:
+                - "sts:AssumeRole"
+        ManagedPolicyArns:
+          - arn:aws:iam::aws:policy/AWSLambdaFullAccess
+        RoleName: HC_${self:provider.stage}_LambdaRole
+
+#   API
+    HttpAPI:
+      Type: AWS::ApiGateway::RestApi
+      Properties:
+        Name: HC-${self:provider.stage}-HttpAPI
+
+#   Cognito
+    UserPool:
+      Type: AWS::Cognito::UserPool
+      Properties:
+        Policies:
+          PasswordPolicy:
+            MinimumLength: 8
+            RequireLowercase: true
+            RequireNumbers: true
+            RequireSymbols: false
+            RequireUppercase: true
+        Schema:
+          - AttributeDataType: String
+            Mutable: true
+            Name: name
+            Required: true
+        UsernameAttributes:
+          - email
+        AutoVerifiedAttributes:
+          - email
+        UserPoolName: HC-${self:provider.stage}-UserPool
+        LambdaConfig:
+          PreSignUp:
+            Fn::GetAtt:
+              - CreateProfileLambdaFunction
+              - Arn
+        UserPoolTags:
+          PROJECT: HealthCheck
+
+    UserPoolLambdaInvokePermission:
+      Type: AWS::Lambda::Permission
+      Properties:
+        Action: lambda:invokeFunction
+        Principal: cognito-idp.amazonaws.com
+        FunctionName: ${self:service}-${self:provider.stage}-createProfile
+        SourceArn:
+          Fn::GetAtt:
+            - UserPool
+            - Arn
+
+    UserPoolClient:
+      Type: AWS::Cognito::UserPoolClient
+      Properties:
+        ClientName: Mobile
+        GenerateSecret: false
+        UserPoolId:
+          Ref: UserPool
+
+    HTTPAuthorizer:
+      Type: AWS::ApiGateway::Authorizer
+      Properties:
+        AuthorizerResultTtlInSeconds: 300
+        IdentitySource: method.request.header.Authorization
+        Name: HealthCheckCognito
+        RestApiId:
+          Ref: HttpAPI
+        Type: COGNITO_USER_POOLS
+        ProviderARNs:
+          - Fn::GetAtt:
+            - UserPool
+            - Arn
+
+#   SNS
+    NewProfileCreatedTopic:
+      Type: AWS::SNS::Topic
+      Properties:
+        DisplayName: ${self:provider.stage}-'New profile created'
+        Subscription:
+          - Endpoint: https://hooks.slack.com/services/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
+            Protocol: https
+        TopicName: NewProfileCreated-${self:provider.stage}-Topic
+
+  Outputs:
+    HttpAPIID:
+      Value:
+        Ref: HttpAPI
+      Export:
+        Name: HttpAPI-ID-${self:provider.stage}
+
+    HttpAPIRootResourceId:
+      Value:
+        Fn::GetAtt:
+          - HttpAPI
+          - RootResourceId
+      Export:
+        Name: HttpAPI-RootResourceId-${self:provider.stage}
+
+    HTTPAuthorizerID:
+      Value:
+        Ref: HTTPAuthorizer
+      Export:
+        Name: HTTPAuthorizer-ID-${self:provider.stage}
+
+    IAMLambdaRoleARN:
+      Value:
+        Fn::GetAtt:
+          - IAMLambdaRole
+          - Arn
+      Export:
+        Name: IAMLambdaRole-ARN-${self:provider.stage}
+
+    ProfilesTable:
+      Value:
+        Ref: ProfilesTable
+      Export:
+        Name: ProfilesTable-${self:provider.stage}
