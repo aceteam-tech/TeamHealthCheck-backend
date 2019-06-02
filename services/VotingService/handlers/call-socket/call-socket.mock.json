@@ -1,0 +1,8 @@
+{
+  "body": {
+    "socketId": "at2BRfo9LPEAc2Q=",
+    "message": {
+      "action": "userVoted"
+    }
+  }
+}

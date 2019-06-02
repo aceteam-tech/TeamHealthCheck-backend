@@ -3,6 +3,7 @@ frameworkVersion: ">=1.32.0 < 2.0.0"
 plugins:
   - serverless-pseudo-parameters
   - serverless-plugin-optimize
+  - serverless-export-env
 
 custom:
   environment:
@@ -12,6 +13,11 @@ custom:
     VOTES_TABLE: HC-${self:provider.stage}-VotesTable
     REGION: ${self:provider.region}
     STAGE: ${self:provider.stage}
+    ACCESS_KEY_ID: ${ssm:/execute-api-access-key-id}
+    SECRET_ACCESS_KEY_ID: ${ssm:/execute-api-secret-access-key-id}
+    WEBSOCKETS_API_ID:
+      Fn::ImportValue:
+        WebsocketsAPI-ID-${self:provider.stage}
   authorizer:
     type: COGNITO_USER_POOLS
     authorizerId:
@@ -26,6 +32,9 @@ custom:
   restApiRootResourceId:
     Fn::ImportValue:
       HttpAPI-RootResourceId-${self:provider.stage}
+  websocketsID:
+    Fn::ImportValue:
+      WebsocketsAPI-ID-${self:provider.stage}
 
 provider:
   name: aws
@@ -104,8 +113,12 @@ functions:
           method: post
           authorizer: ${self:custom.authorizer}
     environment: ${self:custom.environment}
-
-
+    
+  callSocket:
+    handler: handlers/call-socket/call-socket.lambda
+    description: Calls a specified socket
+    role: ${self:custom.roleId}
+    environment: ${self:custom.environment}
 
 resources:
   Resources:
