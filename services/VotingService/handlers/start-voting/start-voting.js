@@ -10,7 +10,7 @@ module.exports.lambda = async (event) => {
         const healthStatus = await VotingsTable.addVotingAsync(team)
         return {
             statusCode: 200,
-            body: JSON.stringify(healthStatus)
+            body: JSON.stringify({...healthStatus, usersSubmitted: []})
         }
     } else {
         return {
