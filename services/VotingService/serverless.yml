@@ -13,9 +13,12 @@ custom:
     VOTES_TABLE: HC-${self:provider.stage}-VotesTable
     REGION: ${self:provider.region}
     STAGE: ${self:provider.stage}
-    PUBLISH_SOCKET_TOPIC:
+    CALL_SOCKET_TOPIC:
       Fn::ImportValue:
         CallSocketTopic-Arn-${self:provider.stage}
+    NOTIFY_TEAM_TOPIC:
+      Fn::ImportValue:
+        NotifyTeamTopic-Arn-${self:provider.stage}
   authorizer:
     type: COGNITO_USER_POOLS
     authorizerId:

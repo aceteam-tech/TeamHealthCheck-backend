@@ -35,20 +35,20 @@ function calculateCategories(votes, categories) {
 const lambda = async (event) => {
     const { teamId } = event.pathParameters
 
-    const healthCheck = (await VotingsTable.queryByStatusAsync(teamId, false))[0]
-    const healthStatuses = await VotesTable.queryVotesAsync(healthCheck.id)
+    const voting = (await VotingsTable.queryByStatusAsync(teamId, false))[0]
+    const votes = await VotesTable.queryVotesAsync(voting.id)
 
-    if (healthStatuses.length === 0) {
-        const updated = await VotingsTable.endVotingAsync(healthCheck, healthCheck.categories)
+    if (votes.length === 0) {
+        const updated = await VotingsTable.endVotingAsync(voting, voting.categories)
         return {
             statusCode: 200,
             body: JSON.stringify(updated)
         }
     }
 
-    const flattenedVotes = flattenVotes(healthStatuses)
-    const calculatedCategories = calculateCategories(flattenedVotes, healthCheck.categories)
-    const updated = await VotingsTable.endVotingAsync(healthCheck, calculatedCategories)
+    const flattenedVotes = flattenVotes(votes)
+    const calculatedCategories = calculateCategories(flattenedVotes, voting.categories)
+    const updated = await VotingsTable.endVotingAsync(voting, calculatedCategories)
     return {
         statusCode: 200,
         body: JSON.stringify(updated)

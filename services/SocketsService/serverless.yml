@@ -9,6 +9,7 @@ custom:
   environment:
     PROFILES_TABLE: HC-${self:provider.stage}-ProfilesTable
     CONNECTIONS_TABLE: HC-${self:provider.stage}-ConnectionsTable
+    TEAMS_TABLE: HC-${self:provider.stage}-TeamsTable
     REGION: ${self:provider.region}
     STAGE: ${self:provider.stage}
     ACCESS_KEY_ID: ${ssm:/execute-api-access-key-id}
@@ -22,6 +23,7 @@ custom:
     Fn::ImportValue:
       IAMLambdaRole-ARN-${self:provider.stage}
   callSocketTopicName: CallSocketTopic
+  notifyTeamTopicName: NotifyTeamTopic
 
 provider:
   name: aws
@@ -76,6 +78,16 @@ functions:
           arn: !Ref CallSocketTopic
           topicName: ${self:custom.callSocketTopicName}
 
+  notifyTeam:
+      handler: handlers/notify-team/notify-team.lambda
+      description: Notify all team about an event provided as body property
+      role: ${self:custom.roleId}
+      environment: ${self:custom.environment}
+      events:
+        - sns:
+            arn: !Ref NotifyTeamTopic
+            topicName: ${self:custom.notifyTeamTopicName}
+
 resources:
   Resources:
     ConnectionsTable:
@@ -109,8 +121,18 @@ resources:
         DisplayName: Call Socket Topic
         TopicName: ${self:custom.callSocketTopicName}
 
+    NotifyTeamTopic:
+      Type: AWS::SNS::Topic
+      Properties:
+        DisplayName: Notify all team by sending the update to sockets of its members
+        TopicName: ${self:custom.notifyTeamTopicName}
+
   Outputs:
     CallSocketTopicArn:
       Value: !Ref CallSocketTopic
       Export:
         Name: CallSocketTopic-Arn-${self:provider.stage}
+    NotifyTeamTopicArn:
+      Value: !Ref NotifyTeamTopic
+      Export:
+        Name: NotifyTeamTopic-Arn-${self:provider.stage}

@@ -1,0 +1,18 @@
+{
+  "Records": [
+    {
+      "Sns": {
+        "Message": {
+          "teamId": "c000c68b-9a0a-4fa4-a77e-b532d8f3feaa",
+          "body": {
+            "action": "userVoted",
+            "user": {
+              "id": "2",
+              "name": "Test"
+            }
+          }
+        }
+      }
+    }
+  ]
+}
