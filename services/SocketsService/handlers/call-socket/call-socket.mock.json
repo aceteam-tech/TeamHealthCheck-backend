@@ -1,0 +1,15 @@
+{
+  "Records": [
+    {
+      "Sns": {
+        "Message": {
+          "socketId": "axIWnfCkrPECHnw=",
+          "body": {
+            "action": "userVoted",
+            "userId": 2
+          }
+        }
+      }
+    }
+  ]
+}

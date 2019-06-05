@@ -10,6 +10,7 @@
   "author": "Oskar Kaminski",
   "license": "ISC",
   "dependencies": {
+    "crypto-js": "^3.1.9-1",
     "jsonwebtoken": "^8.5.1",
     "jwks-rsa": "^1.5.0",
     "lodash.flatmap": "^4.5.0",
@@ -23,6 +24,7 @@
     "aws-sdk": "^2.348.0",
     "jest": "^24.0.0",
     "serverless": "^1.33.2",
+    "serverless-export-env": "^1.2.0",
     "serverless-plugin-optimize": "^4.0.2-rc.1",
     "serverless-pseudo-parameters": "^2.2.0"
   }

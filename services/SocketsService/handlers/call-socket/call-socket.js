@@ -1,6 +1,6 @@
 const fetch = require('node-fetch')
 const Signer = require('./signer')
-const Encode = require('../../helpers/encode')
+const Encode = require('../../../VotingService/helpers/encode')
 
 // Request values
 const method = 'POST'
@@ -10,12 +10,13 @@ const region = process.env.REGION
 const websocketsApiId = process.env.WEBSOCKETS_API_ID
 
 module.exports.lambda = async (event) => {
+    const message = JSON.parse(event.Records[0].Sns.Message)
 
     const url = {
         host: `${websocketsApiId}.execute-api.${region}.amazonaws.com`,
-        pathname: new Encode(`/ws/@connections/${event.body.socketId}`)
+        pathname: new Encode(`/ws/@connections/${message.socketId}`)
     }
-    const body = event.body.message
+    const body = message.body
 
 
     const request = new Signer({

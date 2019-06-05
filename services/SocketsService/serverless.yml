@@ -3,6 +3,7 @@ frameworkVersion: ">=1.32.0 < 2.0.0"
 plugins:
   - serverless-pseudo-parameters
   - serverless-plugin-optimize
+  - serverless-export-env
 
 custom:
   environment:
@@ -10,12 +11,17 @@ custom:
     CONNECTIONS_TABLE: HC-${self:provider.stage}-ConnectionsTable
     REGION: ${self:provider.region}
     STAGE: ${self:provider.stage}
+    ACCESS_KEY_ID: ${ssm:/execute-api-access-key-id}
+    SECRET_ACCESS_KEY_ID: ${ssm:/execute-api-secret-access-key-id}
+    SERVICE: ${self:service}
+    WEBSOCKETS_API_ID: !Ref WebsocketsApi
     ISS:
       Fn::ImportValue:
         UserPool-ID-${self:provider.stage}
   roleId:
     Fn::ImportValue:
       IAMLambdaRole-ARN-${self:provider.stage}
+  callSocketTopicName: CallSocketTopic
 
 provider:
   name: aws
@@ -60,6 +66,16 @@ functions:
     role: ${self:custom.roleId}
     environment: ${self:custom.environment}
 
+  callSocket:
+    handler: handlers/call-socket/call-socket.lambda
+    description: Calls a specified socket
+    role: ${self:custom.roleId}
+    environment: ${self:custom.environment}
+    events:
+      - sns:
+          arn: !Ref CallSocketTopic
+          topicName: ${self:custom.callSocketTopicName}
+
 resources:
   Resources:
     ConnectionsTable:
@@ -77,3 +93,24 @@ resources:
           - AttributeName: user_id
             KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
+
+    ConnectResponse:
+      Type: AWS::ApiGatewayV2::RouteResponse
+      Properties:
+        ApiId:
+          Ref: WebsocketsApi
+        RouteId:
+          Ref: SconnectWebsocketsRoute
+        RouteResponseKey: $default
+
+    CallSocketTopic:
+      Type: AWS::SNS::Topic
+      Properties:
+        DisplayName: Call Socket Topic
+        TopicName: ${self:custom.callSocketTopicName}
+
+  Outputs:
+    CallSocketTopicArn:
+      Value: !Ref CallSocketTopic
+      Export:
+        Name: CallSocketTopic-Arn-${self:provider.stage}
