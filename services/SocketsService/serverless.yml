@@ -23,8 +23,8 @@ custom:
   roleId:
     Fn::ImportValue:
       IAMLambdaRole-ARN-${self:provider.stage}
-  callSocketTopicName: CallSocketTopic
-  notifyTeamTopicName: NotifyTeamTopic
+  callSocketTopicName: CallSocketTopic-${self:provider.stage}
+  notifyTeamTopicName: NotifyTeamTopic-${self:provider.stage}
 
 provider:
   name: aws
