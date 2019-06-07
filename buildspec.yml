@@ -5,7 +5,20 @@ phases:
     commands:
       - echo Entered the build phase...
       - sudo npm i -g serverless
-      - cd functions
+
+      - cd services/APIService
+      - npm i
+      - sls deploy --stage ${Stage}
+
+      - cd ../SocketsService
+      - npm i
+      - sls deploy --stage ${Stage}
+
+      - cd ../VotingService
+      - npm i
+      - sls deploy --stage ${Stage}
+      
+      - cd ../TeamsService
       - npm i
       - sls deploy --stage ${Stage}
   post_build:
