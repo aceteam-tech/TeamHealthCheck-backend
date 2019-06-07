@@ -106,7 +106,7 @@ Resources:
         SecretToken: !Ref GithubSecret
       Filters:
         - JsonPath: "$.ref"
-          MatchEquals: refs/heads/{Branch}
+          MatchEquals: refs/heads/master
       TargetPipeline: !Ref PipelineName
       TargetAction: Source
       TargetPipelineVersion: !GetAtt Pipeline.Version

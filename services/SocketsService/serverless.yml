@@ -15,6 +15,7 @@ custom:
     ACCESS_KEY_ID: ${ssm:/execute-api-access-key-id}
     SECRET_ACCESS_KEY_ID: ${ssm:/execute-api-secret-access-key-id}
     SERVICE: ${self:service}
+    SLACK_NOTIFY_URL: https://hooks.slack.com/services/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
     WEBSOCKETS_API_ID: !Ref WebsocketsApi
     ISS:
       Fn::ImportValue:
@@ -79,14 +80,24 @@ functions:
           topicName: ${self:custom.callSocketTopicName}
 
   notifyTeam:
-      handler: handlers/notify-team/notify-team.lambda
-      description: Notify all team about an event provided as body property
-      role: ${self:custom.roleId}
-      environment: ${self:custom.environment}
-      events:
-        - sns:
-            arn: !Ref NotifyTeamTopic
-            topicName: ${self:custom.notifyTeamTopicName}
+    handler: handlers/notify-team/notify-team.lambda
+    description: Notify all team about an event provided as body property
+    role: ${self:custom.roleId}
+    environment: ${self:custom.environment}
+    events:
+      - sns:
+          arn: !Ref NotifyTeamTopic
+          topicName: ${self:custom.notifyTeamTopicName}
+
+  notifySlack:
+    handler: handlers/notify-slack/notify-slack.lambda
+    description: Notify slack channel about a team event
+    role: ${self:custom.roleId}
+    environment: ${self:custom.environment}
+    events:
+      - sns:
+          arn: !Ref NotifyTeamTopic
+          topicName: ${self:custom.notifyTeamTopicName}
 
 resources:
   Resources:
