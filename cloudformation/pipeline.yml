@@ -1,134 +1,175 @@
-AWSTemplateFormatVersion: "2010-09-09"
+AWSTemplateFormatVersion: '2010-09-09'
 
 Description: >
   Health Check Functions Continuous Delivery AWS CloudFormation Template
 
 Parameters:
   PipelineName:
-    Default: HC-functions
-    Description: A name for pipeline
-    Type: String
+    Default: 'HC-functions'
+    Description: 'A name for pipeline'
+    Type: 'String'
   WebhookName:
-    Default: HC-backend-webhook
-    Description: Github webhook for new changes
-    Type: String
+    Default: 'HC-backend-webhook'
+    Description: 'Github webhook for new changes'
+    Type: 'String'
   TestStackName:
-    Default: HealthCheck-functions-dev
-    Description: A name for the test WordPress stack
-    Type: String
+    Default: 'HealthCheck-functions-dev'
+    Description: 'A name for the test WordPress stack'
+    Type: 'String'
   OAuthToken:
     Type: 'AWS::SSM::Parameter::Value<String>'
-    Default: github-hc-functions-pipeline-oauth
-    Description: The name of OAuth token for webhook integration defined in parameters store
+    Default: 'github-hc-functions-pipeline-oauth'
+    Description: 'The name of OAuth token for webhook integration defined in parameters store'
   GithubSecret:
     Type: 'AWS::SSM::Parameter::Value<String>'
-    Default: github-hc-backend-pipeline-secret
-    Description: The secret used to ensure, that webhook comes from github
+    Default: 'github-hc-backend-pipeline-secret'
+    Description: 'The secret used to ensure, that webhook comes from github'
 
 Metadata:
   AWS::CloudFormation::Interface:
     ParameterGroups:
       - Label:
-          default: "CodePipeline Settings"
+          default: 'CodePipeline Settings'
         Parameters:
           - PipelineName
           - OAuthToken
           - GithubSecret
           - WebhookName
       - Label:
-          default: "Test Stack Settings"
+          default: 'Test Stack Settings'
         Parameters:
           - TestStackName
 
 Resources:
-  CodeBuild:
-    Type: AWS::CodeBuild::Project
+  BuildStaging:
+    Type: 'AWS::CodeBuild::Project'
     Properties:
       Artifacts:
-        Type: CODEPIPELINE
-      Description: Build process to run the serverless deploy to staging environment
+        Type: 'CODEPIPELINE'
+      Description: 'Build process to run the serverless deploy to staging environment'
       Environment:
-        ComputeType: BUILD_GENERAL1_SMALL
-#        EnvironmentVariables:
-#          - EnvironmentVariable
-        Image: aws/codebuild/nodejs:10.14.1
-        Type: LINUX_CONTAINER
-      Name: HC_build
+        ComputeType: 'BUILD_GENERAL1_SMALL'
+        EnvironmentVariables:
+          - Name: 'Stage'
+            Value: 'Test'
+        Image: 'aws/codebuild/nodejs:10.14.1'
+        Type: 'LINUX_CONTAINER'
+      Name: 'BuildStaging'
       ServiceRole: !GetAtt [PipelineRole, Arn]
       Source:
-        Type: CODEPIPELINE
-  Pipeline:
-    Type: AWS::CodePipeline::Pipeline
+        Type: 'CODEPIPELINE'
+
+  BuildProduction:
+    Type: 'AWS::CodeBuild::Project'
     Properties:
-      Name: !Ref 'PipelineName'
+      Artifacts:
+        Type: 'CODEPIPELINE'
+      Description: 'Build process to run the serverless deploy to production environment'
+      Environment:
+        ComputeType: 'BUILD_GENERAL1_SMALL'
+        EnvironmentVariables:
+          - Name: 'Stage'
+            Value: 'Test'
+        Image: 'aws/codebuild/nodejs:10.14.1'
+        Type: 'LINUX_CONTAINER'
+      Name: 'BuildProduction'
+      ServiceRole: !GetAtt [PipelineRole, Arn]
+      Source:
+        Type: 'CODEPIPELINE'
+
+  Pipeline:
+    Type: 'AWS::CodePipeline::Pipeline'
+    Properties:
+      Name: !Ref PipelineName
       RoleArn: !GetAtt [PipelineRole, Arn]
       ArtifactStore:
-        Location: squad-health-check-builds
+        Location: 'squad-health-check-builds'
         Type: S3
       Stages:
-        - Name: Source
+        - Name: 'Source'
           Actions:
-            - Name: Source
+            - Name: 'fetch-github'
               ActionTypeId:
-                Category: Source
-                Owner: ThirdParty
-                Provider: GitHub
+                Category: 'Source'
+                Owner: 'ThirdParty'
+                Provider: 'GitHub'
                 Version: '1'
               Configuration:
-                Branch: master
-                Owner: aceteam-tech
+                Branch: 'ws'
+                Owner: 'aceteam-tech'
                 OAuthToken: !Ref OAuthToken
-                PollForSourceChanges: false
-                Repo: TeamHealthCheck-backend
+                PollForSourceChanges: 'false'
+                Repo: 'TeamHealthCheck-backend'
               OutputArtifacts:
-                - Name: TemplateSource
-              RunOrder: '1'
-        - Name: TestStage
+                - Name: 'TemplateSource'
+
+        - Name: 'Test'
           Actions:
-            - Name: Deploy
+            - Name: 'deploy-test'
               ActionTypeId:
-                Category: Build
-                Owner: AWS
-                Provider: CodeBuild
+                Category: 'Build'
+                Owner: 'AWS'
+                Provider: 'CodeBuild'
                 Version: '1'
               InputArtifacts:
-                - Name: TemplateSource
+                - Name: 'TemplateSource'
               Configuration:
-                ProjectName: HC_build
-              RunOrder: '1'
+                ProjectName: 'BuildStaging'
+
+        - Name: 'Approve'
+          Actions:
+            - Name: 'approve'
+              ActionTypeId:
+                Category: 'Approval'
+                Owner: 'AWS'
+                Provider: 'Manual'
+                Version: '1'
+
+        - Name: 'Production'
+          Actions:
+            - Name: 'deploy-production'
+              ActionTypeId:
+                Category: 'Build'
+                Owner: 'AWS'
+                Provider: 'CodeBuild'
+                Version: '1'
+              InputArtifacts:
+                - Name: 'TemplateSource'
+              Configuration:
+                ProjectName: 'BuildProduction'
 
   Webhook:
-    Type: "AWS::CodePipeline::Webhook"
+    Type: 'AWS::CodePipeline::Webhook'
     Properties:
       Name: !Ref WebhookName
-      Authentication: GITHUB_HMAC
+      Authentication: 'GITHUB_HMAC'
       AuthenticationConfiguration:
         SecretToken: !Ref GithubSecret
       Filters:
         - JsonPath: "$.ref"
-          MatchEquals: refs/heads/master
+          MatchEquals: 'refs/heads/master'
       TargetPipeline: !Ref PipelineName
-      TargetAction: Source
+      TargetAction: fetch-github
       TargetPipelineVersion: !GetAtt Pipeline.Version
       RegisterWithThirdParty: 'true'
 
   PipelineRole:
-    Type: AWS::IAM::Role
+    Type: 'AWS::IAM::Role'
     Properties:
-      RoleName: HC-CodePipeline
+      RoleName: 'HC-CodePipeline'
       AssumeRolePolicyDocument:
         Statement:
         - Action: ['sts:AssumeRole']
-          Effect: Allow
+          Effect: 'Allow'
           Principal:
             Service:
-              - codepipeline.amazonaws.com
-              - codebuild.amazonaws.com
+              - 'codepipeline.amazonaws.com'
+              - 'codebuild.amazonaws.com'
         Version: '2012-10-17'
       ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/AdministratorAccess
+        - 'arn:aws:iam::aws:policy/AdministratorAccess'
 
 Outputs:
   WebhookUrl:
-    Description: The url for the github webhook
+    Description: 'The url for the github webhook'
     Value: !GetAtt Webhook.Url

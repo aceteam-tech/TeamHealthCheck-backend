@@ -7,7 +7,7 @@ phases:
       - sudo npm i -g serverless
       - cd functions
       - npm i
-      - sls deploy --stage staging
+      - sls deploy --stage ${Stage}
   post_build:
     commands:
       - echo Build completed on `date`
