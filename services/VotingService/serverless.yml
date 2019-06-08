@@ -1,9 +1,9 @@
-service: HC-VotingService
+service: 'HC-VotingService'
 frameworkVersion: ">=1.32.0 < 2.0.0"
 plugins:
-  - serverless-pseudo-parameters
-  - serverless-plugin-optimize
-  - serverless-export-env
+  - 'serverless-pseudo-parameters'
+  - 'serverless-plugin-optimize'
+  - 'serverless-export-env'
 
 custom:
   environment:
@@ -13,60 +13,43 @@ custom:
     VOTES_TABLE: HC-${self:provider.stage}-VotesTable
     REGION: ${self:provider.region}
     STAGE: ${self:provider.stage}
-    CALL_SOCKET_TOPIC:
-      Fn::ImportValue:
-        CallSocketTopic-Arn-${self:provider.stage}
-    NOTIFY_TEAM_TOPIC:
-      Fn::ImportValue:
-        NotifyTeamTopic-Arn-${self:provider.stage}
+    CALL_SOCKET_TOPIC: !ImportValue CallSocketTopic-Arn-${self:provider.stage}
+    NOTIFY_TEAM_TOPIC: !ImportValue NotifyTeamTopic-Arn-${self:provider.stage}
   authorizer:
-    type: COGNITO_USER_POOLS
-    authorizerId:
-      Fn::ImportValue:
-         HTTPAuthorizer-ID-${self:provider.stage}
-  roleId:
-    Fn::ImportValue:
-      IAMLambdaRole-ARN-${self:provider.stage}
-  restApiId:
-    Fn::ImportValue:
-      HttpAPI-ID-${self:provider.stage}
-  restApiRootResourceId:
-    Fn::ImportValue:
-      HttpAPI-RootResourceId-${self:provider.stage}
+    type: 'COGNITO_USER_POOLS'
+    authorizerId: !ImportValue HTTPAuthorizer-ID-${self:provider.stage}
+  roleId: !ImportValue IAMLambdaRole-ARN-${self:provider.stage}
 
 provider:
-  name: aws
-  runtime: nodejs8.10
+  name: 'aws'
+  runtime: 'nodejs8.10'
   region: ${opt:region, 'eu-west-2'}
-  memorySize: 128
-  tags:
-    PROJECT: "HealthCheck"
-    REGION: ${self:provider.region}
+  memorySize: '128'
   stage: ${opt:stage, 'ws'}
   apiGateway:
-    restApiId: ${self:custom.restApiId}
-    restApiRootResourceId: ${self:custom.restApiRootResourceId}
+    restApiId: !ImportValue HttpAPI-ID-Test
+    restApiRootResourceId: !ImportValue HttpAPI-RootResourceId-Test
 
 package:
-  individually: true
+  individually: 'true'
   exclude:
-    - package.json
-    - package-lock.json
+    - 'package.json'
+    - 'package-lock.json'
 
 functions:
   startVoting:
-    handler: handlers/start-voting/start-voting.lambda
-    description: Start new voting
+    handler: 'handlers/start-voting/start-voting.lambda'
+    description: 'Start new voting'
     role: ${self:custom.roleId}
     events:
       - http:
-          path: votings
-          method: post
+          path: 'votings'
+          method: 'post'
           authorizer: ${self:custom.authorizer}
     environment: ${self:custom.environment}
 
   getVoting:
-    handler: handlers/get-voting/get-voting.lambda
+    handler: 'handlers/get-voting/get-voting.lambda'
     description: |
       Get the current status of the voting for the specified team.
       The function returns information, that voting has ended,
@@ -74,73 +57,73 @@ functions:
     role: ${self:custom.roleId}
     events:
       - http:
-          path: votings/{teamId}
-          method: get
+          path: 'votings/{teamId}'
+          method: 'get'
           authorizer: ${self:custom.authorizer}
     environment: ${self:custom.environment}
 
   endVoting:
-    handler: handlers/end-voting/end-voting.lambda
-    description: End the voting and compute results for a specified team
+    handler: 'handlers/end-voting/end-voting.lambda'
+    description: 'End the voting and compute results for a specified team'
     role: ${self:custom.roleId}
     events:
       - http:
-          path: votings/{teamId}
-          method: put
+          path: 'votings/{teamId}'
+          method: 'put'
           authorizer: ${self:custom.authorizer}
     environment: ${self:custom.environment}
 
   getFinishedVotings:
-    handler: handlers/get-finished-votings/get-finished-votings.lambda
-    description: Returns array of all finished votings
+    handler: 'handlers/get-finished-votings/get-finished-votings.lambda'
+    description: 'Returns array of all finished votings'
     role: ${self:custom.roleId}
     events:
       - http:
-          path: votings/{teamId}/finished
-          method: get
+          path: 'votings/{teamId}/finished'
+          method: 'get'
           authorizer: ${self:custom.authorizer}
     environment: ${self:custom.environment}
 
   vote:
-    handler: handlers/vote/vote.lambda
-    description: Sends a new vote
+    handler: 'handlers/vote/vote.lambda'
+    description: 'Sends a new vote'
     role: ${self:custom.roleId}
     events:
       - http:
-          path: votings/{teamId}/vote
-          method: post
+          path: 'votings/{teamId}/vote'
+          method: 'post'
           authorizer: ${self:custom.authorizer}
     environment: ${self:custom.environment}
 
 resources:
   Resources:
     VotingsTable:
-      Type: AWS::DynamoDB::Table
+      Type: 'AWS::DynamoDB::Table'
       Properties:
         TableName: ${self:custom.environment.VOTINGS_TABLE}
         AttributeDefinitions:
-          - AttributeName: team_id
-            AttributeType: S
-          - AttributeName: date
-            AttributeType: N
+          - AttributeName: 'team_id'
+            AttributeType: 'S'
+          - AttributeName: 'date'
+            AttributeType: 'N'
         KeySchema:
-          - AttributeName: team_id
-            KeyType: HASH
-          - AttributeName: date
-            KeyType: RANGE
-        BillingMode: PAY_PER_REQUEST
+          - AttributeName: 'team_id'
+            KeyType: 'HASH'
+          - AttributeName: 'date'
+            KeyType: 'RANGE'
+        BillingMode: 'PAY_PER_REQUEST'
     VotesTable:
-      Type: AWS::DynamoDB::Table
+      Type: 'AWS::DynamoDB::Table'
       Properties:
         TableName: ${self:custom.environment.VOTES_TABLE}
         AttributeDefinitions:
-          - AttributeName: voting_id
-            AttributeType: S
-          - AttributeName: user_id
-            AttributeType: S
+          - AttributeName: 'voting_id'
+            AttributeType: 'S'
+          - AttributeName: 'user_id'
+            AttributeType: 'S'
         KeySchema:
-          - AttributeName: voting_id
-            KeyType: HASH
-          - AttributeName: user_id
-            KeyType: RANGE
-        BillingMode: PAY_PER_REQUEST
+          - AttributeName: 'voting_id'
+            KeyType: 'HASH'
+          - AttributeName: 'user_id'
+            KeyType: 'RANGE'
+        BillingMode: 'PAY_PER_REQUEST'

@@ -1,112 +1,103 @@
-service: HC-TeamService
+service: 'HC-TeamService'
 frameworkVersion: ">=1.32.0 < 2.0.0"
 plugins:
-  - serverless-pseudo-parameters
-  - serverless-plugin-optimize
+  - 'serverless-pseudo-parameters'
+  - 'serverless-plugin-optimize'
 
 custom:
   teamsTableName: HC-${self:provider.stage}-TeamsTable
   profilesTableName: HC-${self:provider.stage}-ProfilesTable
   authorizerId:
-    Fn::ImportValue:
-       HTTPAuthorizer-ID-${self:provider.stage}
+    Fn::ImportValue: HTTPAuthorizer-ID-${self:provider.stage}
   roleId:
-    Fn::ImportValue:
-      IAMLambdaRole-ARN-${self:provider.stage}
-  restApiId:
-    Fn::ImportValue:
-      HttpAPI-ID-${self:provider.stage}
-  restApiRootResourceId:
-    Fn::ImportValue:
-      HttpAPI-RootResourceId-${self:provider.stage}
+    Fn::ImportValue: IAMLambdaRole-ARN-${self:provider.stage}
 
 provider:
-  name: aws
-  runtime: nodejs8.10
+  name: 'aws'
+  runtime: 'nodejs8.10'
   region: ${opt:region, 'eu-west-2'}
-  memorySize: 128
-  tags:
-    PROJECT: "HealthCheck"
-    REGION: ${self:provider.region}
+  memorySize: '128'
   stage: ${opt:stage, 'ws'}
   apiGateway:
-    restApiId: ${self:custom.restApiId}
-    restApiRootResourceId: ${self:custom.restApiRootResourceId}
+    restApiId:
+      Fn::ImportValue: HttpAPI-ID-${self:provider.stage}
+    restApiRootResourceId:
+      Fn::ImportValue: HttpAPI-RootResourceId-${self:provider.stage}
 
 package:
-  individually: true
+  individually: 'true'
   exclude:
-    - package.json
-    - package-lock.json
+    - 'package.json'
+    - 'package-lock.json'
 
 functions:
   getMyTeams:
-    handler: handlers/get-my-teams/get-my-teams.lambda
-    description: Returns users teams
+    handler: 'handlers/get-my-teams/get-my-teams.lambda'
+    description: 'Returns users teams'
     role: ${self:custom.roleId}
     events:
       - http:
-          path: teams
-          method: GET
+          path: 'teams'
+          method: 'GET'
           authorizer:
-            type: COGNITO_USER_POOLS
+            type: 'COGNITO_USER_POOLS'
             authorizerId: ${self:custom.authorizerId}
     environment:
-      FUNCTION: getMyTeams
+      FUNCTION: 'getMyTeams'
       PROFILES_TABLE: ${self:custom.profilesTableName}
       TEAMS_TABLE: ${self:custom.teamsTableName}
       REGION: ${self:provider.region}
       STAGE: ${self:provider.stage}
 
   createTeam:
-    handler: handlers/create-team/create-team.lambda
-    description: Create a new team and assign the user who creates it
+    handler: 'handlers/create-team/create-team.lambda'
+    description: 'Create a new team and assign the user who creates it'
     role: ${self:custom.roleId}
     events:
       - http:
-          path: teams
-          method: POST
+          path: 'teams'
+          method: 'POST'
           authorizer:
-            type: COGNITO_USER_POOLS
+            type: 'COGNITO_USER_POOLS'
             authorizerId: ${self:custom.authorizerId}
     environment:
-      FUNCTION: createTeam
+      FUNCTION: 'createTeam'
       PROFILES_TABLE: ${self:custom.profilesTableName}
       TEAMS_TABLE: ${self:custom.teamsTableName}
       REGION: ${self:provider.region}
       STAGE: ${self:provider.stage}
 
   joinTeam:
-    handler: handlers/join-team/join-team.lambda
-    description: Assign user to the team
+    handler: 'handlers/join-team/join-team.lambda'
+    description: 'Assign user to the team'
     role: ${self:custom.roleId}
     events:
       - http:
-          path: teams/{teamId}/members
-          method: POST
+          path: 'teams/{teamId}/members'
+          method: 'POST'
           authorizer:
-            type: COGNITO_USER_POOLS
+            type: 'COGNITO_USER_POOLS'
             authorizerId: ${self:custom.authorizerId}
     environment:
-      FUNCTION: joinTeam
+      FUNCTION: 'joinTeam'
       PROFILES_TABLE: ${self:custom.profilesTableName}
       TEAMS_TABLE: ${self:custom.teamsTableName}
       REGION: ${self:provider.region}
       STAGE: ${self:provider.stage}
 
   removeFromTeam:
-    handler: handlers/remove-from-team/remove-from-team.lambda
-    description: Remove user from the team
+    handler: 'handlers/remove-from-team/remove-from-team.lambda'
+    description: 'Remove user from the team'
     role: ${self:custom.roleId}
     events:
       - http:
-          path: teams/{teamId}/members
-          method: DELETE
+          path: 'teams/{teamId}/members'
+          method: 'DELETE'
           authorizer:
-            type: COGNITO_USER_POOLS
+            type: 'COGNITO_USER_POOLS'
             authorizerId: ${self:custom.authorizerId}
     environment:
-      FUNCTION: removeFromTeam
+      FUNCTION: 'removeFromTeam'
       PROFILES_TABLE: ${self:custom.profilesTableName}
       TEAMS_TABLE: ${self:custom.teamsTableName}
       REGION: ${self:provider.region}
@@ -115,22 +106,22 @@ functions:
 resources:
   Resources:
     TeamsTable:
-      Type: AWS::DynamoDB::Table
+      Type: 'AWS::DynamoDB::Table'
       Properties:
         TableName: ${self:custom.teamsTableName}
         AttributeDefinitions:
-          - AttributeName: id
-            AttributeType: S
-          - AttributeName: code
-            AttributeType: S
+          - AttributeName: 'id'
+            AttributeType: 'S'
+          - AttributeName: 'code'
+            AttributeType: 'S'
         KeySchema:
-          - AttributeName: id
-            KeyType: HASH
-        BillingMode: PAY_PER_REQUEST
+          - AttributeName: 'id'
+            KeyType: 'HASH'
+        BillingMode: 'PAY_PER_REQUEST'
         GlobalSecondaryIndexes:
-          - IndexName: gsi_code
+          - IndexName: 'gsi_code'
             KeySchema:
-              - AttributeName: code
-                KeyType: HASH
+              - AttributeName: 'code'
+                KeyType: 'HASH'
             Projection:
-              ProjectionType: KEYS_ONLY
+              ProjectionType: 'KEYS_ONLY'

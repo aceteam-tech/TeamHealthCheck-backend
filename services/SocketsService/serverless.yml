@@ -18,11 +18,9 @@ custom:
     SLACK_NOTIFY_URL: https://hooks.slack.com/services/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
     WEBSOCKETS_API_ID: !Ref WebsocketsApi
     ISS:
-      Fn::ImportValue:
-        UserPool-ID-${self:provider.stage}
+      Fn::ImportValue: UserPool-ID-${self:provider.stage}
   roleId:
-    Fn::ImportValue:
-      IAMLambdaRole-ARN-${self:provider.stage}
+    Fn::ImportValue: IAMLambdaRole-ARN-${self:provider.stage}
   callSocketTopicName: CallSocketTopic-${self:provider.stage}
   notifyTeamTopicName: NotifyTeamTopic-${self:provider.stage}
 
@@ -31,9 +29,6 @@ provider:
   runtime: nodejs8.10
   region: ${opt:region, 'eu-west-2'}
   memorySize: 128
-  tags:
-    PROJECT: "HealthCheck"
-    REGION: ${self:provider.region}
   stage: ${opt:stage, 'ws'}
   websocketsApiName: HC-${self:provider.stage}-WebsocketsAPI
 

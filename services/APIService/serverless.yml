@@ -1,40 +1,35 @@
-service: HC-APIService
+service: 'HC-APIService'
 frameworkVersion: ">=1.32.0 < 2.0.0"
 plugins:
-  - serverless-pseudo-parameters
-  - serverless-plugin-optimize
+  - 'serverless-pseudo-parameters'
+  - 'serverless-plugin-optimize'
 
 custom:
   profilesTableName: HC-${self:provider.stage}-ProfilesTable
-  roleId:
-    Fn::ImportValue:
-      IAMLambdaRole-ARN-${self:provider.stage}
-  slackNotifyUrl: https://hooks.slack.com/services/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
+  roleId: !Ref IAMLambdaRole
+  slackNotifyUrl: 'https://hooks.slack.com/services/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'
 
 provider:
-  name: aws
-  runtime: nodejs8.10
+  name: 'aws'
+  runtime: 'nodejs8.10'
   region: ${opt:region, 'eu-west-2'}
-  memorySize: 128
-  tags:
-    PROJECT: "HealthCheck"
-    REGION: ${self:provider.region}
+  memorySize: '128'
   stage: ${opt:stage, 'ws'}
 
 package:
-  individually: true
+  individually: 'true'
   exclude:
-    - package.json
-    - package-lock.json
+    - 'package.json'
+    - 'package-lock.json'
 
 functions:
 
   createProfile:
-    handler: handlers/create-profile/create-profile.lambda
-    description: Create user profile with id the same as Cognito UID
+    handler: 'handlers/create-profile/create-profile.lambda'
+    description: 'Create user profile with id the same as Cognito UID'
     role: {"Fn::GetAtt": ["IAMLambdaRole", "Arn"]}
     environment:
-      FUNCTION: create-profile
+      FUNCTION: 'create-profile'
       PROFILES_TABLE: ${self:custom.profilesTableName}
       SLACK_NOTIFY_URL: ${self:custom.slackNotifyUrl}
       REGION: ${self:provider.region}
@@ -44,61 +39,61 @@ resources:
   Resources:
 
     ProfilesTable:
-      Type: AWS::DynamoDB::Table
+      Type: 'AWS::DynamoDB::Table'
       Properties:
         TableName: HC-${self:provider.stage}-ProfilesTable
         AttributeDefinitions:
-          - AttributeName: id
-            AttributeType: S
+          - AttributeName: 'id'
+            AttributeType: 'S'
         KeySchema:
-          - AttributeName: id
-            KeyType: HASH
-        BillingMode: PAY_PER_REQUEST
+          - AttributeName: 'id'
+            KeyType: 'HASH'
+        BillingMode: 'PAY_PER_REQUEST'
 
 #   IAM
     IAMLambdaRole:
-      Type: AWS::IAM::Role
+      Type: 'AWS::IAM::Role'
       Properties:
         AssumeRolePolicyDocument:
-          Version: "2012-10-17"
+          Version: '2012-10-17'
           Statement:
             -
-              Effect: Allow
+              Effect: 'Allow'
               Principal:
                 Service:
-                  - "lambda.amazonaws.com"
+                  - 'lambda.amazonaws.com'
               Action:
-                - "sts:AssumeRole"
+                - 'sts:AssumeRole'
         ManagedPolicyArns:
-          - arn:aws:iam::aws:policy/AWSLambdaFullAccess
+          - 'arn:aws:iam::aws:policy/AWSLambdaFullAccess'
         RoleName: HC_${self:provider.stage}_LambdaRole
 
 #   API
     HttpAPI:
-      Type: AWS::ApiGateway::RestApi
+      Type: 'AWS::ApiGateway::RestApi'
       Properties:
         Name: HC-${self:provider.stage}-HttpAPI
 
 #   Cognito
     UserPool:
-      Type: AWS::Cognito::UserPool
+      Type: 'AWS::Cognito::UserPool'
       Properties:
         Policies:
           PasswordPolicy:
-            MinimumLength: 8
-            RequireLowercase: true
-            RequireNumbers: true
-            RequireSymbols: false
-            RequireUppercase: true
+            MinimumLength: '8'
+            RequireLowercase: 'true'
+            RequireNumbers: 'true'
+            RequireSymbols: 'false'
+            RequireUppercase: 'true'
         Schema:
-          - AttributeDataType: String
-            Mutable: true
-            Name: name
-            Required: true
+          - AttributeDataType: 'String'
+            Mutable: 'true'
+            Name: 'name'
+            Required: 'true'
         UsernameAttributes:
-          - email
+          - 'email'
         AutoVerifiedAttributes:
-          - email
+          - 'email'
         UserPoolName: HC-${self:provider.stage}-UserPool
         LambdaConfig:
           PreSignUp:
@@ -106,13 +101,13 @@ resources:
               - CreateProfileLambdaFunction
               - Arn
         UserPoolTags:
-          PROJECT: HealthCheck
+          PROJECT: 'HealthCheck'
 
     UserPoolLambdaInvokePermission:
-      Type: AWS::Lambda::Permission
+      Type: 'AWS::Lambda::Permission'
       Properties:
-        Action: lambda:invokeFunction
-        Principal: cognito-idp.amazonaws.com
+        Action: 'lambda:invokeFunction'
+        Principal: 'cognito-idp.amazonaws.com'
         FunctionName: ${self:service}-${self:provider.stage}-createProfile
         SourceArn:
           Fn::GetAtt:
@@ -120,22 +115,22 @@ resources:
             - Arn
 
     UserPoolClient:
-      Type: AWS::Cognito::UserPoolClient
+      Type: 'AWS::Cognito::UserPoolClient'
       Properties:
-        ClientName: Mobile
-        GenerateSecret: false
+        ClientName: 'Mobile'
+        GenerateSecret: 'false'
         UserPoolId:
           Ref: UserPool
 
     HTTPAuthorizer:
-      Type: AWS::ApiGateway::Authorizer
+      Type: 'AWS::ApiGateway::Authorizer'
       Properties:
-        AuthorizerResultTtlInSeconds: 300
-        IdentitySource: method.request.header.Authorization
-        Name: HealthCheckCognito
+        AuthorizerResultTtlInSeconds: '300'
+        IdentitySource: 'method.request.header.Authorization'
+        Name: 'HealthCheckCognito'
         RestApiId:
           Ref: HttpAPI
-        Type: COGNITO_USER_POOLS
+        Type: 'COGNITO_USER_POOLS'
         ProviderARNs:
           - Fn::GetAtt:
             - UserPool
@@ -143,12 +138,12 @@ resources:
 
 #   SNS
     NewProfileCreatedTopic:
-      Type: AWS::SNS::Topic
+      Type: 'AWS::SNS::Topic'
       Properties:
         DisplayName: ${self:provider.stage}-'New profile created'
         Subscription:
-          - Endpoint: https://hooks.slack.com/services/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
-            Protocol: https
+          - Endpoint: 'https://hooks.slack.com/services/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'
+            Protocol: 'https'
         TopicName: NewProfileCreated-${self:provider.stage}-Topic
 
   Outputs:
