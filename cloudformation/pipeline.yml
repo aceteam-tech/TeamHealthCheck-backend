@@ -69,7 +69,7 @@ Resources:
         ComputeType: 'BUILD_GENERAL1_SMALL'
         EnvironmentVariables:
           - Name: 'Stage'
-            Value: 'Test'
+            Value: 'Production'
         Image: 'aws/codebuild/nodejs:10.14.1'
         Type: 'LINUX_CONTAINER'
       Name: 'BuildProduction'
