@@ -27,8 +27,8 @@ provider:
   memorySize: '128'
   stage: ${opt:stage, 'ws'}
   apiGateway:
-    restApiId: !ImportValue HttpAPI-ID-Test
-    restApiRootResourceId: !ImportValue HttpAPI-RootResourceId-Test
+    restApiId: !ImportValue HttpAPI-ID-${self:provider.stage}
+    restApiRootResourceId: !ImportValue HttpAPI-RootResourceId-${self:provider.stage}
 
 package:
   individually: 'true'
