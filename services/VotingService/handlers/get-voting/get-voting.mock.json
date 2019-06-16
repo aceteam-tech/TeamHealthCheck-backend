@@ -1,11 +1,11 @@
 {
   "pathParameters": {
-    "teamId": "c000c68b-9a0a-4fa4-a77e-b532d8f3feaa"
+    "teamId": "36293ca3-f41c-4c41-9ec9-4c73416358e5"
   },
   "requestContext": {
     "authorizer": {
       "claims": {
-        "sub": "7732ae35-7149-4d5b-9633-184ec103b0ac"
+        "email": "priv.oskar@gmail.com"
       }
     }
   }

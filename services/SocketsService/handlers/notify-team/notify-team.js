@@ -18,30 +18,33 @@ module.exports.lambda = async (event) => {
     const profiles = await ProfilesTable.getBatchProfilesAsync(team.users)
 
     await Promise.all(profiles.map(async ({id, sockets}) => {
-        await Promise.all(sockets.map(async socket => {
+        console.log({'profile id': id});
+        if(sockets && sockets.length){
+            await Promise.all(sockets.map(async socket => {
+                console.log({'socket': socket});
+                const url = {
+                    host: `${websocketsApiId}.execute-api.${region}.amazonaws.com`,
+                    pathname: new Encode(`/ws/@connections/${socket}`)
+                }
+                const body = message.body
 
-            const url = {
-                host: `${websocketsApiId}.execute-api.${region}.amazonaws.com`,
-                pathname: new Encode(`/ws/@connections/${socket}`)
-            }
-            const body = message.body
 
+                const request = new Signer({
+                    region,
+                    accessKeyId,
+                    secretAccessKey
+                }, {
+                    url,
+                    method,
+                    dataType: 'json',
+                    contentType: 'application/x-amz-json-1.0',
+                    body
+                })
 
-            const request = new Signer({
-                region,
-                accessKeyId,
-                secretAccessKey
-            }, {
-                url,
-                method,
-                dataType: 'json',
-                contentType: 'application/x-amz-json-1.0',
-                body
-            })
+                await fetch('https://' + url.host + url.pathname, request)
 
-            await fetch('https://' + url.host + url.pathname, request)
-
-        }))
+            }))
+        }
     }))
 
     return {
