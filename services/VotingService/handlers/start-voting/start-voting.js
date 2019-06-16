@@ -21,6 +21,7 @@ module.exports.lambda = async (event) => {
                 teamId,
                 body: {
                     action: 'votingStarted',
+                    teamId,
                     voting: {
                         id: healthStatus.id,
                         ended: healthStatus.ended,

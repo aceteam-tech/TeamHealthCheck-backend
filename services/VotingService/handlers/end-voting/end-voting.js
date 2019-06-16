@@ -46,7 +46,8 @@ const lambda = async (event) => {
         Message: {
             teamId,
             body: {
-                action: 'votingFinished'
+                action: 'votingFinished',
+                teamId
             }
         },
         TopicArn
@@ -56,6 +57,7 @@ const lambda = async (event) => {
         const updated = await VotingsTable.endVotingAsync(voting, voting.categories)
 
         socketResponseParams.Message.body.voting = updated
+        socketResponseParams.Message.body.voting.categories = undefined
         socketResponseParams.Message = JSON.stringify(socketResponseParams.Message)
         await sns.publish(socketResponseParams).promise()
 

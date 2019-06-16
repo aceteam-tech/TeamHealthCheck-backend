@@ -4,7 +4,6 @@ const TeamsTable = require('../../db/TeamsTable')
 module.exports.lambda = async (event) => {
     const { teamId, removedUserId } = typeof event.body === 'string' ? JSON.parse(event.body) : event.body
 
-
     const team = await TeamsTable.queryTeamByIdAsync(teamId)
 
     const remainingUsers = team.users.filter(u => u !== removedUserId)
