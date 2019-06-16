@@ -4,6 +4,7 @@ module.exports.lambda = async (event) => {
     const message = JSON.parse(event.Records[0].Sns.Message)
     await notifySlack(message.body)
 
+
     return event
 }
 
@@ -14,6 +15,7 @@ function getRandomColor(){
     for(let i = 0; i<6; i++){
         color += colorChars[Math.floor(Math.random() * colorChars.length)]
     }
+
 
     return color
 }

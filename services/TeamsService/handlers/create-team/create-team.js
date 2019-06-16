@@ -3,16 +3,15 @@ const ProfilesTable = require('../../db/ProfilesTable')
 const TeamsTable = require('../../db/TeamsTable')
 
 module.exports.lambda = async (event) => {
-    const profileId = event.requestContext.authorizer.claims.sub
-    console.log({'profileId': profileId});
-    const {teamName} = JSON.parse(event.body)
-    console.log({'teamName': teamName});
+    const email = event.requestContext.authorizer.claims.email
+    const { teamName } = typeof event.body === 'string' ? JSON.parse(event.body) : event.body
 
     const code = await getAvailableCode()
     let team = await TeamsTable.createTeamAsync(code, teamName, initialCategories)
 
-    team = await TeamsTable.addProfileAsync(team.id, profileId)
-    await ProfilesTable.addTeamAsync(team.id, profileId)
+    const profile = await ProfilesTable.getProfileByEmailAsync(email)
+    team = await TeamsTable.addProfileAsync(team.id, profile.id)
+    await ProfilesTable.addTeamAsync(team.id, profile.id)
 
     return {
         statusCode: 200,

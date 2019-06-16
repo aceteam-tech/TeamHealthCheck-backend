@@ -29,10 +29,10 @@ const pushSocketToAssociatedProfile = async (connectionId, sockets, profileId) =
 module.exports.handler = async (event) => {
     console.log({'event.requestContext.authorizer': event.requestContext.authorizer});
     console.log({'event.requestContext': event.requestContext});
-    const uuid = event.requestContext.authorizer.sub.toString()
+    const email = event.requestContext.authorizer.email.toString()
     const connectionId = event.requestContext.connectionId.toString()
 
-    const profile = await ProfileTable.getProfileAsync(uuid.toString())
+    const profile = await ProfileTable.getProfileByEmailAsync(email)
     console.log({'profile': profile});
     await addSocketToConnectionsTable(connectionId, profile.id)
     await pushSocketToAssociatedProfile(connectionId, profile.sockets, profile.id)

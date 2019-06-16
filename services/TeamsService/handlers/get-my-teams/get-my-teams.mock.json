@@ -2,7 +2,8 @@
   "requestContext": {
     "authorizer": {
       "claims": {
-        "sub": "25192ce6-a3a4-47e7-afbd-7d7b9ba0d9f1"
+        "sub": "9af3997a-85fc-47c4-b2ab-9e009280ad93",
+        "email": "priv.oskar@gmail.com"
       }
     }
   }

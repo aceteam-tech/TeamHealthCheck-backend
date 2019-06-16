@@ -15,6 +15,18 @@ class ProfilesTable {
         return (await db.query(params).promise()).Items[0]
     }
 
+    static async getProfileByEmailAsync(email){
+        const params = {
+            TableName,
+            IndexName: 'gsi_email',
+            KeyConditionExpression: 'email = :email',
+            ExpressionAttributeValues: {
+                ':email': email
+            }
+        }
+        return (await db.query(params).promise()).Items[0]
+    }
+
     static async getBatchProfilesAsync(users){
         const params = {
             RequestItems: {

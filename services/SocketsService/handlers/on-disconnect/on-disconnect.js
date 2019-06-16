@@ -13,6 +13,7 @@ const queryConnection = async (id) => {
     return (await db.query(params).promise()).Items[0]
 }
 
+
 const removeSocketFromConnectionsTable = async (connection) => {
     const params = {
         TableName: process.env.CONNECTIONS_TABLE,
@@ -37,6 +38,7 @@ const removeSocketFromAssociatedProfile = async (connectionId, sockets, profileI
 
 module.exports.handler = async (event) => {
     const connectionId = event.requestContext.connectionId.toString()
+
 
     const connection = await queryConnection(connectionId)
     const profileId = await removeSocketFromConnectionsTable(connection)

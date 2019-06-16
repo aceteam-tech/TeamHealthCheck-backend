@@ -1,0 +1,9 @@
+{
+  "triggerSource": "UserMigration_Authentication",
+  "region": "eu-west-2",
+  "userName": "priv.oskar@gmail.com",
+  "userPoolId": "eu-west-2_hFA8iZoSE",
+  "request": {
+    "password": "Asdf123$"
+  }
+}

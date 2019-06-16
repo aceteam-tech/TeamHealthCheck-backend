@@ -1,20 +1,35 @@
 const AWS = require('aws-sdk')
 const db = new AWS.DynamoDB.DocumentClient()
+const uuid = require('uuid/v4')
 
 const TableName = process.env.PROFILES_TABLE
 
-class ProfilesTable {
-    static async putProfileAsync(username, name){
+export default class ProfilesTable {
+    static async putProfileAsync(cognitoId, name){
         const params = {
             TableName,
             Item: {
-                id: username,
+                id: uuid(),
                 name,
+                cognitoId,
                 teams:[]
             }
         }
         return db.put(params).promise()
     }
-}
 
-module.exports = ProfilesTable
+    static async updateEmail(id, email){
+        const updateParams = {
+            TableName,
+            Key: {
+                id
+            },
+            UpdateExpression: 'set email = :email',
+            ExpressionAttributeValues: {
+                ':email' : email
+            }
+        }
+
+        return db.update(updateParams).promise()
+    }
+}

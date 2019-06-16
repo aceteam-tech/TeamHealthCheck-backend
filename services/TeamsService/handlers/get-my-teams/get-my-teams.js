@@ -2,9 +2,10 @@ const ProfilesTable = require('../../db/ProfilesTable')
 const TeamsTable = require('../../db/TeamsTable')
 
 module.exports.lambda = async (event) => {
-    const profileId = event.requestContext.authorizer.claims.sub
+    const email = event.requestContext.authorizer.claims.email
+    console.log({'event.requestContext.authorizer': event.requestContext.authorizer});
 
-    const profile = await ProfilesTable.getProfileAsync(profileId)
+    const profile = await ProfilesTable.getProfileByEmailAsync(email)
     if (profile.teams.length === 0) {
         return {
             statusCode: 200,

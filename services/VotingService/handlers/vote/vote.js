@@ -7,14 +7,14 @@ const sns = new AWS.SNS({apiVersion: '2010-03-31'})
 const TopicArn = process.env.NOTIFY_TEAM_TOPIC
 
 module.exports.lambda = async (event) => {
-    const profileId = event.requestContext.authorizer.claims.sub
-    const { categories } = JSON.parse(event.body)
+    const email = event.requestContext.authorizer.claims.email
+    const { categories } = typeof event.body === 'string' ? JSON.parse(event.body) : event.body
     const { teamId } = event.pathParameters
 
-    const activeVoting = (await VotingsTable.queryByStatusAsync(teamId, false))[0]
-    const vote = await VotesTable.addVoteAsync(profileId, activeVoting.id, categories)
+    const profile = await ProfilesTable.getProfileByEmailAsync(email)
 
-    const profile = await ProfilesTable.getProfileAsync(profileId)
+    const activeVoting = (await VotingsTable.queryByStatusAsync(teamId, false))[0]
+    const vote = await VotesTable.addVoteAsync(profile.id, activeVoting.id, categories)
 
     const params = {
         Message: JSON.stringify({

@@ -2,7 +2,8 @@ const ProfilesTable = require('../../db/ProfilesTable')
 const TeamsTable = require('../../db/TeamsTable')
 
 module.exports.lambda = async (event) => {
-    const { teamId, removedUserId } = JSON.parse(event.body)
+    const { teamId, removedUserId } = typeof event.body === 'string' ? JSON.parse(event.body) : event.body
+
 
     const team = await TeamsTable.queryTeamByIdAsync(teamId)
 

@@ -3,6 +3,7 @@ frameworkVersion: ">=1.32.0 < 2.0.0"
 plugins:
   - 'serverless-pseudo-parameters'
   - 'serverless-plugin-optimize'
+  - 'serverless-webpack'
 
 custom:
   profilesTableName: HC-${self:provider.stage}-ProfilesTable
@@ -11,7 +12,7 @@ custom:
 
 provider:
   name: 'aws'
-  runtime: 'nodejs8.10'
+  runtime: 'nodejs10.x'
   region: ${opt:region, 'eu-west-2'}
   memorySize: '128'
   stage: ${opt:stage, 'ws'}
@@ -27,9 +28,39 @@ functions:
   createProfile:
     handler: 'handlers/create-profile/create-profile.lambda'
     description: 'Create user profile with id the same as Cognito UID'
-    role: {"Fn::GetAtt": ["IAMLambdaRole", "Arn"]}
+    role:
+      Fn::GetAtt:
+        - IAMLambdaRole
+        - Arn
     environment:
       FUNCTION: 'create-profile'
+      PROFILES_TABLE: ${self:custom.profilesTableName}
+      SLACK_NOTIFY_URL: ${self:custom.slackNotifyUrl}
+      REGION: ${self:provider.region}
+      STAGE: ${self:provider.stage}
+
+  userMigration:
+    handler: 'handlers/user-migration/user-migration.lambda'
+    description: 'TO DO'
+    role:
+      Fn::GetAtt:
+        - IAMLambdaRole
+        - Arn
+    environment:
+      FUNCTION: 'create-profile'
+      PROFILES_TABLE: ${self:custom.profilesTableName}
+      SLACK_NOTIFY_URL: ${self:custom.slackNotifyUrl}
+      REGION: ${self:provider.region}
+      STAGE: ${self:provider.stage}
+
+  migrateDynamo:
+    handler: 'handlers/migrate-dynamo/migrate-dynamo.lambda'
+    description: 'This lambda is migrating the previous dynamodb tables into the current stack'
+    role:
+      Fn::GetAtt:
+        - IAMLambdaRole
+        - Arn
+    environment:
       PROFILES_TABLE: ${self:custom.profilesTableName}
       SLACK_NOTIFY_URL: ${self:custom.slackNotifyUrl}
       REGION: ${self:provider.region}
@@ -45,9 +76,18 @@ resources:
         AttributeDefinitions:
           - AttributeName: 'id'
             AttributeType: 'S'
+          - AttributeName: 'email'
+            AttributeType: 'S'
         KeySchema:
           - AttributeName: 'id'
             KeyType: 'HASH'
+        GlobalSecondaryIndexes:
+          - IndexName: 'gsi_email'
+            KeySchema:
+              - AttributeName: 'email'
+                KeyType: 'HASH'
+            Projection:
+              ProjectionType: 'ALL'
         BillingMode: 'PAY_PER_REQUEST'
 
 #   IAM
@@ -114,6 +154,17 @@ resources:
             - UserPool
             - Arn
 
+    UserPoolUserMigrationInvokePermission:
+      Type: 'AWS::Lambda::Permission'
+      Properties:
+        Action: 'lambda:invokeFunction'
+        Principal: 'cognito-idp.amazonaws.com'
+        FunctionName: ${self:service}-${self:provider.stage}-userMigration
+        SourceArn:
+          Fn::GetAtt:
+            - UserPool
+            - Arn
+
     UserPoolClient:
       Type: 'AWS::Cognito::UserPoolClient'
       Properties:
@@ -175,11 +226,11 @@ resources:
       Export:
         Name: IAMLambdaRole-ARN-${self:provider.stage}
 
-    ProfilesTable:
-      Value:
-        Ref: ProfilesTable
-      Export:
-        Name: ProfilesTable-${self:provider.stage}
+#    ProfilesTable:
+#      Value:
+#        Ref: ProfilesTable
+#      Export:
+#        Name: ProfilesTable-${self:provider.stage}
 
     UserPoolID:
       Value:

@@ -1,28 +1,35 @@
-const fetch = require('node-fetch')
-const ProfilesTable = require('../../db/ProfilesTable')
+import fetch from 'node-fetch'
+import ProfilesTable from '../../db/ProfilesTable'
 
-module.exports.lambda = async (event) => {
-    const { userName: uuid } = event
+export const lambda = async (event) => {
+    console.log({'event': event});
+    const { userName: cognitoId } = event
     const { name, email } = event.request.userAttributes
 
-    await ProfilesTable.putProfileAsync(uuid, name)
-    await notifySlack(name, uuid, email)
+    const profile = await ProfilesTable.queryByCognitoId(cognitoId)
+    console.log({'profile': profile});
+
+    if(!profile){
+        await ProfilesTable.putProfileAsync(cognitoId, name)
+        if(process.env.STAGE === 'Production'){
+            await notifySlack(name, email)
+        }
+    }
+
 
     return event
 }
 
-async function notifySlack(name, uuid, email) {
-    const color = ['staging', 'production'].includes(process.env.STAGE) ? "#66cc66" : "#6666cc"
-
+async function notifySlack(name, email) {
     const options = {
         method: 'POST',
         body: JSON.stringify({
             text: `A new user has joined on \`${process.env.STAGE}\` environment`,
             "attachments": [
                 {
-                    color,
+                    color: '#6666cc',
                     author_name: `Name: ${name}`,
-                    text: `Id: ${uuid}\nEmail: ${email}`
+                    text: `Id: ${email}`
                 }
             ]
         }),

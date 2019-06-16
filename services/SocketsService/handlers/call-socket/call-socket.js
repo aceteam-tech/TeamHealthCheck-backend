@@ -16,8 +16,8 @@ module.exports.lambda = async (event) => {
         host: `${websocketsApiId}.execute-api.${region}.amazonaws.com`,
         pathname: new Encode(`/ws/@connections/${message.socketId}`)
     }
-    const body = message.body
 
+    const body = message.body
 
     const request = new Signer({
         region,
