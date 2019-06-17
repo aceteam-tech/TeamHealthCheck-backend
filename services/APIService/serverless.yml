@@ -136,7 +136,7 @@ resources:
           - 'email'
         UserPoolName: HC-${self:provider.stage}-UserPool
         LambdaConfig:
-          PreSignUp:
+          PostConfirmation:
             Fn::GetAtt:
               - CreateProfileLambdaFunction
               - Arn
