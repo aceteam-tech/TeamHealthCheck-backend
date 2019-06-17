@@ -1,6 +1,8 @@
 {
+  "pathParameters": {
+    "teamId": "5ae55268-7be8-4158-be4a-5668f7d1d18e"
+  },
   "body":{
-    "teamId": "91f17e3d-afeb-405c-aef4-d1f9132bcbc1",
-    "removedUserId": "2e68bcd0-65e0-4b11-9f5e-015de0d5823b"
+    "removedUserId": "1ffeeef3-ccf3-4381-989b-7d93a68747ac"
   }
 }

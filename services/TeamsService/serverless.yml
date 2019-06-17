@@ -100,6 +100,7 @@ functions:
       TEAMS_TABLE: ${self:custom.teamsTableName}
       REGION: ${self:provider.region}
       STAGE: ${self:provider.stage}
+      NOTIFY_TEAM_TOPIC: !ImportValue NotifyTeamTopic-Arn-${self:provider.stage}
 
 resources:
   Resources:
