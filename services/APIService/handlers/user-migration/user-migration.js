@@ -26,7 +26,6 @@ const initiateAuthLegacyUserPool = async (USERNAME, PASSWORD) => {
 }
 
 export const lambda = async (event, context) => {
-    console.log({ 'event': JSON.stringify(event, null, 2) })
     const email = event.userName
 
     if (event.triggerSource = 'UserMigration_Authentication') {
@@ -35,8 +34,6 @@ export const lambda = async (event, context) => {
             await initiateAuthLegacyUserPool(email, password)
             const cognitoUser =
                 await getUserFromLegacyUserPool(email)
-
-            console.log({ 'userFromLegacyUserPool': cognitoUser })
 
             if (cognitoUser) {
 
@@ -56,6 +53,7 @@ export const lambda = async (event, context) => {
                 context.succeed(response)
             }
         } catch (e) {
+            console.log({'e': e});
             return new Error(userNotFoundText)
         }
     }

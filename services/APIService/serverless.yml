@@ -44,7 +44,7 @@ functions:
     description: 'TO DO'
     role:
       Fn::GetAtt:
-        - IAMLambdaRole
+        - IAMUserMigrationRole
         - Arn
     environment:
       FUNCTION: 'create-profile'
@@ -56,6 +56,7 @@ functions:
   migrateDynamo:
     handler: 'handlers/migrate-dynamo/migrate-dynamo.lambda'
     description: 'This lambda is migrating the previous dynamodb tables into the current stack'
+    timeout: 20
     role:
       Fn::GetAtt:
         - IAMLambdaRole
@@ -107,6 +108,24 @@ resources:
         ManagedPolicyArns:
           - 'arn:aws:iam::aws:policy/AWSLambdaFullAccess'
         RoleName: HC_${self:provider.stage}_LambdaRole
+
+    IAMUserMigrationRole:
+      Type: 'AWS::IAM::Role'
+      Properties:
+        AssumeRolePolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            -
+              Effect: 'Allow'
+              Principal:
+                Service:
+                  - 'lambda.amazonaws.com'
+              Action:
+                - 'sts:AssumeRole'
+        ManagedPolicyArns:
+          - 'arn:aws:iam::aws:policy/AWSLambdaFullAccess'
+          - 'arn:aws:iam::aws:policy/AmazonCognitoPowerUser'
+        RoleName: HC_${self:provider.stage}_UserMigrationRole
 
 #   API
     HttpAPI:
