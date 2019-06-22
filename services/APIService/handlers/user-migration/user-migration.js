@@ -12,43 +12,54 @@ const getUserFromLegacyUserPool = async (userName) => {
     return cognito.adminGetUser(params).promise()
 }
 
+const initiateAuthLegacyUserPool = async (USERNAME, PASSWORD) => {
+    const params = {
+        AuthFlow: 'ADMIN_NO_SRP_AUTH',
+        ClientId: '7j048gs5jnvh1b2oe6sighllvd',
+        UserPoolId: 'eu-west-2_wZIIzNgND',
+        AuthParameters: {
+            USERNAME,
+            PASSWORD,
+        },
+    }
+    return cognito.adminInitiateAuth(params).promise()
+}
+
 export const lambda = async (event, context) => {
     console.log({ 'event': JSON.stringify(event, null, 2) })
     const email = event.userName
-    const newUserPoolId = event.userPoolId
 
     if (event.triggerSource = 'UserMigration_Authentication') {
-        const password = event.request.password
-        // TODO: Authenticate user before getting his data
+        try{
+            const password = event.request.password
+            await initiateAuthLegacyUserPool(email, password)
+            const cognitoUser =
+                await getUserFromLegacyUserPool(email)
 
-        const cognitoUser =
-            await getUserFromLegacyUserPool(email)
+            console.log({ 'userFromLegacyUserPool': cognitoUser })
 
-        console.log({ 'userFromLegacyUserPool': cognitoUser })
+            if (cognitoUser) {
 
-        if (cognitoUser) {
+                const cognitoUserId = cognitoUser.Username
+                await Profiles.updateEmail(cognitoUserId, email)
 
-            const cognitoUserId = cognitoUser.Username
-            await Profiles.updateEmail(cognitoUserId, email)
+                const userAttributesObject = cognitoUser.UserAttributes
+                    .filter(att => att.Name !== 'sub')
+                    .reduce((prev, curr) => ({
+                        ...prev,
+                        [curr.Name]: curr.Value
+                    }), {})
 
-            const userAttributesObject = cognitoUser.UserAttributes
-                .filter(att => att.Name !== 'sub')
-                .reduce((prev, curr) => ({
-                    ...prev,
-                    [curr.Name]: curr.Value
-                }), {})
+                const response = getSuccessResponse(event, userAttributesObject)
+                console.log({ 'response': JSON.stringify(response, null, 2) })
 
-            const response = getSuccessResponse(event, userAttributesObject)
-            console.log({ 'response': JSON.stringify(response, null, 2) })
-
-            context.succeed(response)
+                context.succeed(response)
+            }
+        } catch (e) {
+            return new Error(userNotFoundText)
         }
-
-        return new Error(userNotFoundText)
     }
 
-    // Start crazy changes ;)
-    // :) :)
 
     // if (event.triggerSource = 'UserMigration_ForgotPassword') {
     //     // const user = await lookupUser(event.userName)

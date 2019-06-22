@@ -226,12 +226,6 @@ resources:
       Export:
         Name: IAMLambdaRole-ARN-${self:provider.stage}
 
-#    ProfilesTable:
-#      Value:
-#        Ref: ProfilesTable
-#      Export:
-#        Name: ProfilesTable-${self:provider.stage}
-
     UserPoolID:
       Value:
         Ref: UserPool
