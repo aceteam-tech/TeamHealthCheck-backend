@@ -6,11 +6,11 @@ export const lambda = async (event) => {
     const { userName: cognitoId } = event
     const { name, email } = event.request.userAttributes
 
-    const profile = await ProfilesTable.queryByCognitoId(cognitoId)
+    const profile = await ProfilesTable.queryByEmail(email)
     console.log({'profile': profile});
 
     if(!profile){
-        await ProfilesTable.putProfileAsync(cognitoId, name)
+        await ProfilesTable.putProfileAsync(cognitoId, name, email)
         if(process.env.STAGE === 'Production'){
             await notifySlack(name, email)
         }

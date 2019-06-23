@@ -5,17 +5,30 @@ const uuid = require('uuid/v4')
 const TableName = process.env.PROFILES_TABLE
 
 export default class ProfilesTable {
-    static async putProfileAsync(cognitoId, name){
+    static async putProfileAsync(cognitoId, name, email){
         const params = {
             TableName,
             Item: {
                 id: uuid(),
                 name,
                 cognitoId,
-                teams:[]
+                teams:[],
+                email
             }
         }
         return db.put(params).promise()
+    }
+
+    static async queryByEmail(email){
+        const queryParams = {
+            TableName,
+            IndexName: 'gsi_email',
+            KeyConditionExpression: 'email = :email',
+            ExpressionAttributeValues: {
+                ':email': email
+            }
+        }
+        return (await db.query(queryParams).promise()).Items[0]
     }
 
     static async updateEmail(id, email){

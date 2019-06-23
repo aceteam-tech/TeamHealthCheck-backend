@@ -20,7 +20,7 @@ module.exports.lambda = async (event) => {
 }
 
 async function getAvailableCode () {
-    const code = (Math.floor(Math.random() * 1000000)).toString()
+    const code = (Math.floor(Math.random() * 1000000)).toFixed(6)
     const teamsWithCode = await TeamsTable.queryTeamByCodeAsync(code)
     if (teamsWithCode.length === 0) {
         return code

@@ -26,7 +26,7 @@ custom:
 
 provider:
   name: aws
-  runtime: nodejs8.10
+  runtime: 'nodejs8.10'
   region: ${opt:region, 'eu-west-2'}
   memorySize: 128
   stage: ${opt:stage, 'ws'}

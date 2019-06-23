@@ -3,9 +3,10 @@
     {
       "Sns": {
         "Message": {
-          "teamId": "c000c68b-9a0a-4fa4-a77e-b532d8f3feaa",
+          "teamId": "0cc58639-9cdd-4e81-ae84-ba750778423e",
           "body": {
             "action": "userVoted",
+            "teamId": "0cc58639-9cdd-4e81-ae84-ba750778423e",
             "user": {
               "id": "2",
               "name": "Test"

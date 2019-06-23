@@ -71,7 +71,7 @@ functions:
     role: ${self:custom.roleId}
     events:
       - http:
-          path: 'teams/{teamId}/members'
+          path: 'teams/members'
           method: 'POST'
           authorizer:
             type: 'COGNITO_USER_POOLS'
