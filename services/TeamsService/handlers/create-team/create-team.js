@@ -1,6 +1,7 @@
 const initialCategories = require('./initial-categories.json')
 const ProfilesTable = require('../../db/ProfilesTable')
 const TeamsTable = require('../../db/TeamsTable')
+const getFixedLengthNumber = require('./get-fixed-width-number')
 
 module.exports.lambda = async (event) => {
     const email = event.requestContext.authorizer.claims.email
@@ -20,7 +21,8 @@ module.exports.lambda = async (event) => {
 }
 
 async function getAvailableCode () {
-    const code = (Math.floor(Math.random() * 1000000)).toFixed(6)
+    const randomNumber = (Math.floor(Math.random() * 1000000))
+    const code = getFixedLengthNumber(randomNumber, 6)
     const teamsWithCode = await TeamsTable.queryTeamByCodeAsync(code)
     if (teamsWithCode.length === 0) {
         return code
