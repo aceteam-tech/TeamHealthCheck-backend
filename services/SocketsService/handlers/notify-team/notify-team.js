@@ -1,5 +1,5 @@
 const fetch = require('node-fetch')
-const Signer = require('./signer')
+const Signer = require('aws-request-signer')
 const Encode = require('../../../VotingService/helpers/encode')
 const TeamsTable = require('../../db/TeamsTable')
 const ProfilesTable = require('../../db/ProfilesTable')
@@ -19,6 +19,8 @@ module.exports.lambda = async (event) => {
 
     const team = await TeamsTable.queryTeamByIdAsync(message.teamId)
     const profiles = await ProfilesTable.getBatchProfilesAsync(team.users)
+
+    console.log({'profiles': profiles});
 
     await Promise.all(profiles.map(async ({id, sockets}) => {
         if(sockets && sockets.length){
@@ -42,7 +44,8 @@ module.exports.lambda = async (event) => {
                 })
 
                 try{
-                    await fetch('https://' + url.host + url.pathname, request)
+                    const response = await fetch('https://' + url.host + url.pathname, request)
+                    console.log({'response': response});
                 } catch (e){
                     console.log({'fetch error': e});
                 }

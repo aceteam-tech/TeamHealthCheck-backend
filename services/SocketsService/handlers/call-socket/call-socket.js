@@ -1,5 +1,5 @@
 const fetch = require('node-fetch')
-const Signer = require('./signer')
+const Signer = require('aws-request-signer')
 const Encode = require('../../../VotingService/helpers/encode')
 
 // Request values
@@ -10,7 +10,8 @@ const region = process.env.REGION
 const websocketsApiId = process.env.WEBSOCKETS_API_ID
 
 module.exports.lambda = async (event) => {
-    const message = JSON.parse(event.Records[0].Sns.Message)
+    const eventMessage = event.Records[0].Sns.Message
+    const message = typeof eventMessage === 'string' ? JSON.parse(event.Records[0].Sns.Message) : eventMessage
 
     const url = {
         host: `${websocketsApiId}.execute-api.${region}.amazonaws.com`,

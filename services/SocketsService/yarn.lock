@@ -994,6 +994,13 @@ atob@^2.1.1:
   version "2.1.2"
   resolved "https://registry.yarnpkg.com/atob/-/atob-2.1.2.tgz#6d9517eb9e030d2436666651e86bd9f6f13533c9"
 
+aws-request-signer@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/aws-request-signer/-/aws-request-signer-1.0.0.tgz#f9d2374a160b26af6a2ee770f377826a9439fc1c"
+  dependencies:
+    crypto-js "^3.1.9-1"
+    lodash "^4.17.11"
+
 aws-sdk@^2.348.0, aws-sdk@^2.430.0:
   version "2.463.0"
   resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.463.0.tgz#57562a95aa9b071ee16bb9e18ddd5c6c27c6eda6"
