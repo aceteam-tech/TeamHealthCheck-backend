@@ -1,6 +1,5 @@
 const fetch = require('node-fetch')
 const Signer = require('aws-request-signer')
-const Encode = require('../../../VotingService/helpers/encode')
 const TeamsTable = require('../../db/TeamsTable')
 const ProfilesTable = require('../../db/ProfilesTable')
 
@@ -27,7 +26,7 @@ module.exports.lambda = async (event) => {
             await Promise.all(sockets.map(async socket => {
                 const url = {
                     host: `${websocketsApiId}.execute-api.${region}.amazonaws.com`,
-                    pathname: new Encode(`/${stage}/@connections/${socket}`)
+                    pathname: `/${stage}/@connections/${socket}`
                 }
                 const body = message.body
 

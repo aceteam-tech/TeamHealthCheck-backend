@@ -1,6 +1,5 @@
 const fetch = require('node-fetch')
 const Signer = require('aws-request-signer')
-const Encode = require('../../../VotingService/helpers/encode')
 
 // Request values
 const method = 'POST'
@@ -15,7 +14,7 @@ module.exports.lambda = async (event) => {
 
     const url = {
         host: `${websocketsApiId}.execute-api.${region}.amazonaws.com`,
-        pathname: new Encode(`/ws/@connections/${message.socketId}`)
+        pathname: `/ws/@connections/${message.socketId}`
     }
 
     const body = message.body
