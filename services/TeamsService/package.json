@@ -23,6 +23,7 @@
     "aws-sdk": "^2.348.0",
     "jest": "^24.0.0",
     "serverless": "^1.33.2",
+    "serverless-export-env": "^1.2.0",
     "serverless-plugin-optimize": "^4.0.2-rc.1",
     "serverless-pseudo-parameters": "^2.2.0"
   }

@@ -7,6 +7,7 @@ const accessKeyId = process.env.ACCESS_KEY_ID
 const secretAccessKey = process.env.SECRET_ACCESS_KEY_ID
 const region = process.env.REGION
 const websocketsApiId = process.env.WEBSOCKETS_API_ID
+const stage = process.env.STAGE
 
 module.exports.lambda = async (event) => {
     const eventMessage = event.Records[0].Sns.Message
@@ -14,7 +15,7 @@ module.exports.lambda = async (event) => {
 
     const url = {
         host: `${websocketsApiId}.execute-api.${region}.amazonaws.com`,
-        pathname: `/ws/@connections/${message.socketId}`
+        pathname: `/${stage}/@connections/${message.socketId}`
     }
 
     const body = message.body
@@ -31,7 +32,8 @@ module.exports.lambda = async (event) => {
         body
     })
 
-    await fetch('https://' + url.host + url.pathname, request)
+    const response = await fetch('https://' + url.host + url.pathname, request)
+    console.log({'response': response})
 
     return {
         statusCode: 200,

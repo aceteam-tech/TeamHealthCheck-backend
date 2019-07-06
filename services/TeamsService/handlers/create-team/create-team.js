@@ -14,6 +14,8 @@ module.exports.lambda = async (event) => {
     team = await TeamsTable.addProfileAsync(team.id, profile.id)
     await ProfilesTable.addTeamAsync(team.id, profile.id)
 
+    team.users = [profile]
+
     return {
         statusCode: 200,
         body: JSON.stringify(team)

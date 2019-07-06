@@ -22,7 +22,7 @@ module.exports.lambda = async (event) => {
     console.log({'profiles': profiles});
 
     await Promise.all(profiles.map(async ({id, sockets}) => {
-        if(sockets && sockets.length){
+        if(sockets && sockets.length && (!message.ignoredProfiles || !message.ignoredProfiles.includes(id)) ){
             await Promise.all(sockets.map(async socket => {
                 const url = {
                     host: `${websocketsApiId}.execute-api.${region}.amazonaws.com`,

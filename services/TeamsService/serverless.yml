@@ -3,6 +3,7 @@ frameworkVersion: ">=1.32.0 < 2.0.0"
 plugins:
   - 'serverless-pseudo-parameters'
   - 'serverless-plugin-optimize'
+  - 'serverless-export-env'
 
 custom:
   teamsTableName: HC-${self:provider.stage}-TeamsTable
@@ -82,6 +83,7 @@ functions:
       TEAMS_TABLE: ${self:custom.teamsTableName}
       REGION: ${self:provider.region}
       STAGE: ${self:provider.stage}
+      NOTIFY_TEAM_TOPIC: !ImportValue NotifyTeamTopic-Arn-${self:provider.stage}
 
   removeFromTeam:
     handler: 'handlers/remove-from-team/remove-from-team.lambda'
@@ -101,6 +103,7 @@ functions:
       REGION: ${self:provider.region}
       STAGE: ${self:provider.stage}
       NOTIFY_TEAM_TOPIC: !ImportValue NotifyTeamTopic-Arn-${self:provider.stage}
+      CALL_SOCKET_TOPIC: !ImportValue CallSocketTopic-Arn-${self:provider.stage}
 
 resources:
   Resources:
