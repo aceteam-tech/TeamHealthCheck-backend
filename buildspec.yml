@@ -21,9 +21,6 @@ phases:
       - cd ../TeamsService
       - npm i
       - sls deploy --stage ${Stage}
-
-      - cd ../APIService
-      - sls invoke -f migrateDynamo --stage ${Stage}
   post_build:
     commands:
       - echo Build completed on `date`
