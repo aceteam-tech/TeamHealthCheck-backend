@@ -8,14 +8,14 @@ plugins:
 custom:
   profilesTableName: HC-${self:provider.stage}-ProfilesTable
   roleId: !Ref IAMLambdaRole
-  slackNotifyUrl: 'https://hooks.slack.com/services/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'
+  slackNotifyUrl: ${ssm:aws/reference/secretsmanager/slack-events-webhook}
 
 provider:
   name: 'aws'
   runtime: 'nodejs10.x'
   region: ${opt:region, 'eu-west-2'}
   memorySize: '128'
-  stage: ${opt:stage, 'ws'}
+  stage: ${opt:stage, 'dev'}
 
 package:
   individually: 'true'
@@ -207,16 +207,6 @@ resources:
           - Fn::GetAtt:
             - UserPool
             - Arn
-
-#   SNS
-    NewProfileCreatedTopic:
-      Type: 'AWS::SNS::Topic'
-      Properties:
-        DisplayName: ${self:provider.stage}-'New profile created'
-        Subscription:
-          - Endpoint: 'https://hooks.slack.com/services/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'
-            Protocol: 'https'
-        TopicName: NewProfileCreated-${self:provider.stage}-Topic
 
   Outputs:
     HttpAPIID:
