@@ -8,7 +8,7 @@ plugins:
 custom:
   profilesTableName: HC-${self:provider.stage}-ProfilesTable
   roleId: !Ref IAMLambdaRole
-  slackNotifyUrl: ${ssm:aws/reference/secretsmanager/slack-events-webhook}
+  slackNotifyUrl: ${ssm:slack-events-webhook}
 
 provider:
   name: 'aws'
