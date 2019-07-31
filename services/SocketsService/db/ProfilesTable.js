@@ -38,6 +38,18 @@ class ProfilesTable {
         return (await db.batchGet(params).promise()).Responses[TableName]
     }
 
+    static async removeSocketFromAssociatedProfile(updatedSockets, profileId){
+        const params = {
+            TableName,
+            Key: { id: profileId },
+            UpdateExpression: 'set sockets = :sockets',
+            ExpressionAttributeValues: {
+                ':sockets': updatedSockets
+            }
+        }
+        return (await db.update(params).promise()).Attributes
+    }
+
     static async addTeamAsync(teamId, profileId){
         const params = {
             TableName,
