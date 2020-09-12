@@ -18,7 +18,7 @@
     "lodash.range": "^3.2.0",
     "lodash.sumby": "^4.6.0",
     "lodash.uniq": "^4.5.0",
-    "node-fetch": "^2.3.0",
+    "node-fetch": "^2.6.1",
     "uuid": "^3.3.2"
   },
   "devDependencies": {
