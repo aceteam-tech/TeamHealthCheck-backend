@@ -1043,6 +1043,10 @@ bluebird@^3.5.0, bluebird@^3.5.3:
   version "3.5.3"
   resolved "https://registry.yarnpkg.com/bluebird/-/bluebird-3.5.3.tgz#7d01c6f9616c9a51ab0f8c549a79dfe6ec33efa7"
 
+bluebird@^3.7.2:
+  version "3.7.2"
+  resolved "https://registry.yarnpkg.com/bluebird/-/bluebird-3.7.2.tgz#9f229c15be272454ffa973ace0dbee79a1b0c36f"
+
 bn.js@^4.0.0, bn.js@^4.1.0, bn.js@^4.1.1, bn.js@^4.4.0:
   version "4.11.8"
   resolved "https://registry.yarnpkg.com/bn.js/-/bn.js-4.11.8.tgz#2cde09eb5ee341f484746bb0309b3253b1b1442f"
@@ -1344,6 +1348,13 @@ caw@^2.0.0:
     isurl "^1.0.0-alpha5"
     tunnel-agent "^0.6.0"
     url-to-options "^1.0.1"
+
+cfn-resolver-lib@^1.1.7:
+  version "1.1.7"
+  resolved "https://registry.yarnpkg.com/cfn-resolver-lib/-/cfn-resolver-lib-1.1.7.tgz#9d13b0e7dee0a136d7325e0ff53946bf26b6393b"
+  dependencies:
+    lodash "^4.17.15"
+    traverse "^0.6.6"
 
 chalk@^1.0.0:
   version "1.1.3"
@@ -1648,6 +1659,10 @@ crypto-browserify@^3.0.0:
     public-encrypt "^4.0.0"
     randombytes "^2.0.0"
     randomfill "^1.0.3"
+
+crypto-js@^3.1.9-1:
+  version "3.3.0"
+  resolved "https://registry.yarnpkg.com/crypto-js/-/crypto-js-3.3.0.tgz#846dd1cce2f68aacfa156c8578f926a609b7976b"
 
 crypto-random-string@^1.0.0:
   version "1.0.0"
@@ -2504,8 +2519,8 @@ hmac-drbg@^1.0.0:
     minimalistic-crypto-utils "^1.0.1"
 
 hosted-git-info@^2.1.4:
-  version "2.7.1"
-  resolved "https://registry.yarnpkg.com/hosted-git-info/-/hosted-git-info-2.7.1.tgz#97f236977bd6e125408930ff6de3eec6281ec047"
+  version "2.8.9"
+  resolved "https://registry.yarnpkg.com/hosted-git-info/-/hosted-git-info-2.8.9.tgz#dffc0bf9a21c02209090f2aa69429e1414daf3f9"
 
 html-encoding-sniffer@^1.0.2:
   version "1.0.2"
@@ -3591,6 +3606,10 @@ lodash.uniq@^4.5.0:
 lodash@^4.13.1, lodash@^4.17.10, lodash@^4.17.4, lodash@^4.17.5, lodash@^4.3.0, lodash@^4.8.0:
   version "4.17.11"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.11.tgz#b39ea6229ef607ecd89e2c8df12536891cac9b8d"
+
+lodash@^4.17.11, lodash@^4.17.15, lodash@^4.17.20:
+  version "4.17.21"
+  resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.21.tgz#679591c564c3bffaae8454cf0b3df370c3d6911c"
 
 loose-envify@^1.0.0:
   version "1.4.0"
@@ -4684,6 +4703,15 @@ semver@^5.6.0:
   version "5.7.0"
   resolved "https://registry.yarnpkg.com/semver/-/semver-5.7.0.tgz#790a7cf6fea5459bac96110b29b60412dc8ff96b"
 
+serverless-export-env@arabold/serverless-export-env:
+  version "2.0.0-alpha.1"
+  uid add06c9a10de85b515af1cc433c901a64cf2f9ce
+  resolved "https://codeload.github.com/arabold/serverless-export-env/tar.gz/add06c9a10de85b515af1cc433c901a64cf2f9ce"
+  dependencies:
+    bluebird "^3.7.2"
+    cfn-resolver-lib "^1.1.7"
+    lodash "^4.17.20"
+
 serverless-plugin-optimize@^4.0.2-rc.1:
   version "4.0.2-rc.1"
   resolved "https://registry.yarnpkg.com/serverless-plugin-optimize/-/serverless-plugin-optimize-4.0.2-rc.1.tgz#5f6a1dfca4fb3ce384c122148a48e91f76a38ed4"
@@ -5252,6 +5280,10 @@ tr46@^1.0.1:
   resolved "https://registry.yarnpkg.com/tr46/-/tr46-1.0.1.tgz#a8b13fd6bfd2489519674ccde55ba3693b706d09"
   dependencies:
     punycode "^2.1.0"
+
+traverse@^0.6.6:
+  version "0.6.6"
+  resolved "https://registry.yarnpkg.com/traverse/-/traverse-0.6.6.tgz#cbdf560fd7b9af632502fed40f918c157ea97137"
 
 trim-repeated@^1.0.0:
   version "1.0.0"
