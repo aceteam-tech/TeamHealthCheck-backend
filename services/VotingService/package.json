@@ -22,7 +22,7 @@
     "uuid": "^3.3.2"
   },
   "devDependencies": {
-    "aws-sdk": "^2.348.0",
+    "aws-sdk": "^2.814.0",
     "jest": "^24.0.0",
     "serverless": "^1.33.2",
     "serverless-export-env": "arabold/serverless-export-env",
